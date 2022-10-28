@@ -10,7 +10,7 @@ unsigned long long Sprite::GetHeight()
     return m_height;
 }
 
-Color* Sprite::GetPixMap()
+RGBA* Sprite::GetPixMap()
 {
     return m_pPixMap;
 }

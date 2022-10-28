@@ -10,7 +10,15 @@ Scene2d::Camera& Scene2d::GetCamera()
     return m_camera;
 }
 
-fVec2 Scene2d::Camera::operator()(const Actor &a)
+fVec2 Scene2d::Camera::operator()(const Vec2 &pixCoord)
 {
-    return (pos-a.pos)/zoom;
+    fVec2 result = (center-pixCoord)/zoom;
+
+    if (result.x < 0 || result.x > 1 || result.y < 0 || result.y > 1)
+    {
+        return fVec2{-1, -1};
+    }
+
+    return result;
 }
+
