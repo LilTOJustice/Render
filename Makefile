@@ -1,9 +1,9 @@
-FLAGS=-O3 -g -fsanitize=address
+FLAGS=-O3 #-g -fsanitize=address
 
 debug: main.o frame.o render.o scene2d.o scene3d.o shapes.o
 	g++ main.o frame.o render.o scene2d.o scene3d.o shapes.o $(FLAGS)
 
-main.o: main.cpp render.h
+main.o: main.cpp render.h shader.h scene2d.h scene3d.h linalg.h shapes.h frame.h
 	g++ -c main.cpp $(FLAGS)
 
 frame.o: frame.cpp frame.h shader.h

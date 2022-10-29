@@ -12,7 +12,7 @@ class Scene2d
     {
         std::shared_ptr<Sprite> m_spSprite;
         Vec2 pos;
-        double rot;
+        long double rot;
         Vec2 vel;
     };
 
@@ -21,22 +21,26 @@ class Scene2d
         fVec2 operator()(const Vec2 &pixCoord);
 
         Vec2 center;
-        double zoom;
-        double rot;
+        long double zoom;
+        long double rot;
     };
 
     public:
-    Scene2d()
-        : m_camera{Vec2{0, 0}, 1, 0}
-    {}
+    Scene2d(unsigned int framerate = 0, long double time = 0);
 
-    void AddActor(std::shared_ptr<Sprite> spSprite, const Vec2 pos, const double rot = {}, const Vec2 vel = {});
+    void AddActor(std::shared_ptr<Sprite> spSprite, const Vec2 pos, const long double rot = {}, const Vec2 vel = {});
+
+    unsigned long long GetFps() const;
 
     Camera& GetCamera();
 
-    private:
-    std::vector<Actor> m_actors;
-    Camera m_camera;
+    const std::vector<long double>& GetTimeSeq() const;
 
-    friend class Render2d;
+    std::vector<Actor>& GetActors();
+
+    private:
+    unsigned long long m_fps;
+    Camera m_camera;
+    std::vector<long double> m_timeSeq;
+    std::vector<Actor> m_actors;
 };

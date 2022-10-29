@@ -6,21 +6,32 @@
 
 using namespace std;
 
-shared_ptr<Frame> Render2d::Render()
+Render2d::Render2d(long long xRes, long long yRes, std::shared_ptr<Scene2d> spScene)
+    : m_xRes{xRes}, m_yRes{yRes}, m_spScene{spScene}
 {
     if (m_spScene == nullptr)
     {
         throw runtime_error("Invalid scene provided to renderer.");
     }
 
+    if (xRes < 1 || yRes < 1)
+    {
+         throw std::runtime_error("Invalid image size.");
+    }
+}
+
+shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
+{
     auto output = make_shared<Frame>(m_xRes, m_yRes);
     auto& scene = *m_spScene;
     auto& camera = scene.GetCamera();
 
-
-    cout << "Beginning actor render (" << scene.m_actors.size() << " total)...\n";
+    if (verbose)
+    {
+        cout << "Beginning actor render (" << scene.GetActors().size() << " total)...\n";
+    }
     auto start = chrono::high_resolution_clock::now();
-    for (const Scene2d::Actor &a : scene.m_actors)
+    for (const auto &a : scene.GetActors())
     {
         auto spSprite = a.m_spSprite;
         auto* pixMap = spSprite->GetPixMap();
@@ -48,7 +59,7 @@ shared_ptr<Frame> Render2d::Render()
 
                 transformed.x *= output->GetWidth();
                 transformed.y *= output->GetHeight();
-                
+
                 RGBRef color = (*output.get())[transformed.y*output->GetWidth() + transformed.x];
                 color.r = 255;
                 color.g = 255;
@@ -56,30 +67,55 @@ shared_ptr<Frame> Render2d::Render()
             }
         }
     }
-    cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
-    
+    if (verbose)
+    {
+        cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
+    }
+
     // Final screen-space shader pass
-    cout << "Beginning screen-space shader pass...\n";
+    if (verbose)
+    {
+        cout << "Beginning screen-space shader pass...\n";
+    }
     start = chrono::high_resolution_clock::now();
     size_t numShaders = m_shaderQueue.size();
     Vec2 screenRes(m_xRes, m_yRes);
-    while (!m_shaderQueue.empty())
+    for (size_t i = 0; i < m_shaderQueue.size(); i++)
     {
         FragShader shader = m_shaderQueue.front();
-        cout << "Computing shaders: (" << (m_shaderQueue.size()-numShaders) + 1 << " of " << numShaders << ")\n";
+        if (verbose)
+        {
+            cout << "Computing shaders: (" << (m_shaderQueue.size()-numShaders) + 1 << " of " << numShaders << ")\n";
+        }
         for (size_t i = 0; i < output->GetHeight(); i++)
         {
             for (size_t j = 0; j < output->GetWidth(); j++)
             {
-                shader((*output.get())[i*output->GetWidth()+j], Vec2(j, (output->GetHeight()-1)-i), screenRes);
+                shader((*output.get())[i*output->GetWidth()+j], Vec2(j, (output->GetHeight()-1)-i), screenRes, time);
             }
         }
 
+        // Pop and repush
         m_shaderQueue.pop();
+        m_shaderQueue.push(shader);
     }
-    cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
+    if (verbose)
+    {
+        cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
+    }
 
     return output;
+}
+
+shared_ptr<Movie> Render2d::RenderAll()
+{
+    auto spMovie = make_shared<Movie>(m_xRes, m_yRes, m_spScene->GetFps(), m_spScene->GetTimeSeq().size());
+    for (const unsigned long long time : m_spScene->GetTimeSeq())
+    {
+        spMovie->WriteFrame(Render(time, false));
+    }
+
+    return spMovie;
 }
 
 void Render2d::QueueShader(const FragShader& shader)

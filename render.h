@@ -14,17 +14,11 @@ class Render2d
     Render2d& operator=(const Render2d &) = delete;
 
     public:
-    std::shared_ptr<Frame> Render();
+    std::shared_ptr<Frame> Render(long double time = 0, bool verbose = true);
+    std::shared_ptr<Movie> RenderAll();
     void QueueShader(const FragShader &shader);
 
-    Render2d(long long xRes, long long yRes, std::shared_ptr<Scene2d> spScene)
-        : m_xRes{xRes}, m_yRes{yRes}, m_spScene{spScene}
-    {
-        if (xRes < 1 || yRes < 1)
-        {
-             throw std::runtime_error("Invalid image size.");
-        }
-    }
+    Render2d(long long xRes, long long yRes, std::shared_ptr<Scene2d> spScene);
 
     private:
     long long m_xRes, m_yRes;
