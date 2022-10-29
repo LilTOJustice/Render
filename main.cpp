@@ -37,7 +37,7 @@ Frag
 
 int main()
 {
-    auto spScene = std::make_shared<Scene2d>(30, 1);
+    auto spScene = std::make_shared<Scene2d>(25, 1);
     Render2d r2d(2560, 1440, spScene);
     r2d.QueueShader(mandelbrot);
     r2d.RenderAll()->Output("output");

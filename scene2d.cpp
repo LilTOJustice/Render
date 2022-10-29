@@ -8,7 +8,7 @@ Scene2d::Scene2d(unsigned int fps, long double time)
     if (fps > 0)
     {
         long double dt = 1./fps;
-        for (long double t = 0; t <= time-dt; t += dt)
+        for (long double t = 0; t <= time; t += dt)
         {
             m_timeSeq.push_back(t);
         }

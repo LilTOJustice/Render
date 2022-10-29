@@ -11,11 +11,6 @@ class Frame
     public:
     Frame(unsigned long long width, unsigned long long height);
 
-    private:
-    // Only for Movie to use
-    Frame(unsigned long long width, unsigned long long height, unsigned char* img);
-
-    public:
     void Output(std::string filename) const;
 
     RGBRef operator[](unsigned long long index);
@@ -60,7 +55,7 @@ class Movie
     long double GetDuration() const;
 
     private:
-    unsigned long long m_width, m_height, m_fps, m_numFrames, m_frameIndex, m_colorStride, m_imgSize;
+    unsigned long long m_width, m_height, m_fps, m_frameIndex, m_colorStride, m_imgSize;
     long double m_aspectRatio, m_duration;
     std::vector<std::shared_ptr<Frame>> m_spFrames;
 };
