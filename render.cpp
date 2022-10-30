@@ -28,7 +28,7 @@ shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
 
     if (verbose)
     {
-        cout << "Beginning actor render (" << scene.GetActors().size() << " total)...\n";
+        cout << "\nBeginning actor render (" << scene.GetActors().size() << " total)...\n";
     }
     auto start = chrono::high_resolution_clock::now();
     for (const auto &a : scene.GetActors())
@@ -75,7 +75,7 @@ shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
     // Final screen-space shader pass
     if (verbose)
     {
-        cout << "Beginning screen-space shader pass...\n";
+        cout << "\nBeginning screen-space shader pass...\n";
     }
     start = chrono::high_resolution_clock::now();
     size_t numShaders = m_shaderQueue.size();
@@ -110,11 +110,21 @@ shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
 shared_ptr<Movie> Render2d::RenderAll()
 {
     auto spMovie = make_shared<Movie>(m_xRes, m_yRes, m_spScene->GetFps(), m_spScene->GetTimeSeq().size());
-    for (const unsigned long long time : m_spScene->GetTimeSeq())
+    cout << "\nBeginning render: " << spMovie->GetWidth() << 'x' << spMovie->GetHeight()
+        << " @ " << spMovie->GetFps() << " -> " << spMovie->GetNumFrames() << " frames ("
+        << spMovie->GetDuration() << "s)\n";
+
+    auto start = chrono::high_resolution_clock::now();
+    for (size_t i = 0; i < m_spScene->GetTimeSeq().size(); i++)
     {
-        spMovie->WriteFrame(Render(time, false));
+        spMovie->WriteFrame(Render(m_spScene->GetTimeSeq()[i], false));
+        if (i % 5 == 0)
+        {
+            cout << 100.*i/spMovie->GetNumFrames() << "%\n";
+        }
     }
 
+    cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
     return spMovie;
 }
 

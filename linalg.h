@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 template<typename T>
 struct T_Vec2
 {
@@ -78,11 +80,13 @@ struct T_Vec3
 {
     T x, y, z;
     T &r, &g, &b;
+    T &h, &s, &v;
     const T_Vec2<T&> xy, xz, yz;
     
     T_Vec3()
         : x{}, y{}, z{}
         , r{x}, g{y}, b{z}
+        , h{x}, s{y}, v{z}
         , xy{T_Vec2<T&>{x, y}}
         , xz{T_Vec2<T&>{x, z}}
         , yz{T_Vec2<T&>{y, z}}
@@ -91,6 +95,7 @@ struct T_Vec3
     T_Vec3(const T &_x, const T &_y, const T &_z)
         : x{_x}, y{_y}, z{_z}
         , r{x}, g{y}, b{z}
+        , h{x}, s{y}, v{z}
         , xy{T_Vec2<T&>{x, y}}
         , xz{T_Vec2<T&>{x, z}}
         , yz{T_Vec2<T&>{y, z}}
@@ -275,3 +280,21 @@ typedef T_Vec3<unsigned char> RGB;
 typedef T_Vec4<unsigned char> RGBA;
 typedef T_Vec3<unsigned char&> RGBRef;
 typedef T_Vec4<unsigned char&> RGBARef;
+typedef T_Vec3<long double> HSV;
+
+template<typename T>
+T max(T first, T second)
+{
+    return (first > second ? first : second);
+}
+
+template<typename T>
+T min(T first, T second)
+{
+    return (first < second ? first : second);
+}
+
+// Color functions
+const long double DEGPERPI = 180/3.14159265;
+HSV ToHSV(const RGB &rgb);
+RGB ToRGB(const HSV &hsv);

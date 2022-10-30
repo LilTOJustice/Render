@@ -65,19 +65,18 @@ Movie::Movie(unsigned long long width, unsigned long long height, unsigned long 
 void Movie::Output(string filename) const
 {
     string fullname = filename + ".mp4";
-    cout << "Exporting movie: " << fullname << "...\n";
+    cout << "\nExporting movie: " << fullname << "...\n";
+
     auto start = chrono::high_resolution_clock::now();
-    unsigned char *mov = new unsigned char[m_spFrames.size()*m_imgSize];
+    CImgList<unsigned char> mov(m_spFrames.size());
     for (size_t i = 0; i < m_spFrames.size(); i++)
     {
-        memcpy(mov+(i*m_imgSize), m_spFrames[i]->m_pImage, m_imgSize);
-        m_spFrames[i]->Output(to_string(i));
+        mov(i) = CImg<unsigned char>(m_spFrames[i]->m_pImage, m_width, m_height, 1, 3);
     }
 
-    CImg<unsigned char> out(mov, m_width, m_height, m_spFrames.size(), 3);
-    out.save_ffmpeg_external(fullname.c_str(), m_fps);
+    mov.save_ffmpeg_external(fullname.c_str(), m_fps, 0, 8192);
+    
     cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
-    delete[] mov;
 }
 
 shared_ptr<Frame> Movie::operator[](unsigned long long index)
