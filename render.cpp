@@ -1,8 +1,11 @@
-#include <stdexcept>
-#include <iostream>
-#include <chrono>
-
 #include "render.h"
+
+#include <atomic>
+#include <chrono>
+#include <iostream>
+#include <queue>
+#include <stdexcept>
+#include <thread>
 
 using namespace std;
 
@@ -30,11 +33,12 @@ shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
     {
         cout << "\nBeginning actor render (" << scene.GetActors().size() << " total)...\n";
     }
+
     auto start = chrono::high_resolution_clock::now();
     for (const auto &a : scene.GetActors())
     {
         auto spSprite = a.m_spSprite;
-        auto* pixMap = spSprite->GetPixMap();
+        //auto* pixMap = spSprite->GetPixMap();
         unsigned int width = spSprite->GetWidth(), height = spSprite->GetHeight();
         cout << "Pos: (" << a.pos.x << ", " << a.pos.y << ")\n";
         cout << "Center: (" << camera.center.x << ", " << camera.center.y << ")\n";
@@ -67,6 +71,7 @@ shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
             }
         }
     }
+
     if (verbose)
     {
         cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
@@ -77,16 +82,19 @@ shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
     {
         cout << "\nBeginning screen-space shader pass...\n";
     }
+
     start = chrono::high_resolution_clock::now();
     size_t numShaders = m_shaderQueue.size();
     Vec2 screenRes(m_xRes, m_yRes);
     for (size_t i = 0; i < m_shaderQueue.size(); i++)
     {
         FragShader shader = m_shaderQueue.front();
+        
         if (verbose)
         {
             cout << "Computing shaders: (" << (m_shaderQueue.size()-numShaders) + 1 << " of " << numShaders << ")\n";
         }
+
         for (size_t i = 0; i < output->GetHeight(); i++)
         {
             for (size_t j = 0; j < output->GetWidth(); j++)
@@ -99,6 +107,7 @@ shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
         m_shaderQueue.pop();
         m_shaderQueue.push(shader);
     }
+
     if (verbose)
     {
         cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
@@ -107,21 +116,86 @@ shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
     return output;
 }
 
+struct jobinfo
+{
+    long double time;
+    unsigned long long frameIndex;
+};
+
+class WorkerThread
+{
+    static void Work(queue<jobinfo> *jobQueue, shared_ptr<Movie> spMovie, Render2d *pRenderer, atomic_ullong *aFramesComplete)
+    {
+        while(!jobQueue->empty())
+        {
+            const jobinfo &ji = jobQueue->front();
+            spMovie->WriteFrame(pRenderer->Render(ji.time, false), ji.frameIndex);
+            (*aFramesComplete)++;
+            if (*aFramesComplete % 5 == 0 || *aFramesComplete == spMovie->GetNumFrames())
+            {
+                cout << 100.*(*aFramesComplete)/spMovie->GetNumFrames() << "%\n";
+            }
+            jobQueue->pop();
+        }
+    }
+
+    public:
+    void QueueJob(long double time, unsigned long long frameIndex)
+    {
+        m_jobQueue.push({time, frameIndex});
+    }
+    
+    WorkerThread(shared_ptr<Movie> spMovie, Render2d *pRenderer, atomic_ullong &aFramesComplete)
+        : m_spMovie{spMovie}, m_pRenderer{pRenderer}, m_aFramesComplete{aFramesComplete}
+    {}
+
+    void Start()
+    {
+        m_spThread = make_shared<thread>(Work, &m_jobQueue, m_spMovie, m_pRenderer, &m_aFramesComplete);
+    }
+
+    void Join()
+    {
+        m_spThread->join();
+    }
+    
+    private:
+    shared_ptr<thread> m_spThread;
+    shared_ptr<Movie> m_spMovie;
+    queue<jobinfo> m_jobQueue;
+    Render2d *m_pRenderer;
+    atomic_ullong &m_aFramesComplete;
+};
+
 shared_ptr<Movie> Render2d::RenderAll()
 {
+    if (render_threads <= 0)
+    {
+        throw runtime_error("Invalid number of threads given (" + to_string(render_threads) + ")!");
+    }
+
     auto spMovie = make_shared<Movie>(m_xRes, m_yRes, m_spScene->GetFps(), m_spScene->GetTimeSeq().size());
-    cout << "\nBeginning render: " << spMovie->GetWidth() << 'x' << spMovie->GetHeight()
-        << " @ " << spMovie->GetFps() << " -> " << spMovie->GetNumFrames() << " frames ("
-        << spMovie->GetDuration() << "s)\n";
+    cout << "\nBeginning render " << '(' << render_threads << " thread" << (render_threads > 1 ? "s" : "") << "): "
+        << spMovie->GetWidth() << 'x' << spMovie->GetHeight() << " @ " << spMovie->GetFps() << " -> "
+        << spMovie->GetNumFrames() << " frames (" << spMovie->GetDuration() << "s)\n";
 
     auto start = chrono::high_resolution_clock::now();
-    for (size_t i = 0; i < m_spScene->GetTimeSeq().size(); i++)
+    atomic_ullong aFramesComplete(0);
+    vector<WorkerThread> workerThreads(render_threads, WorkerThread(spMovie, this, aFramesComplete));
+
+    for (size_t i = 0; i < spMovie->GetNumFrames(); i++)
     {
-        spMovie->WriteFrame(Render(m_spScene->GetTimeSeq()[i], false));
-        if (i % 5 == 0)
-        {
-            cout << 100.*i/spMovie->GetNumFrames() << "%\n";
-        }
+        workerThreads[i%render_threads].QueueJob(m_spScene->GetTimeSeq()[i], i);
+    }
+
+    for (auto &wt : workerThreads)
+    {
+        wt.Start();
+    }
+
+    for (auto &wt : workerThreads)
+    {
+        wt.Join();
     }
 
     cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";

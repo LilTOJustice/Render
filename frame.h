@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+#define cimg_display 0
+#include "CImg.h"
+
 #include "linalg.h"
 
 class Frame
@@ -38,9 +41,7 @@ class Movie
 
     void Output(std::string filename) const;
 
-    std::shared_ptr<Frame> operator[](unsigned long long index);
-
-    void WriteFrame(std::shared_ptr<Frame> spFrame);
+    void WriteFrame(std::shared_ptr<Frame> spFrame, unsigned long long frameIndex);
 
     unsigned long long GetWidth() const;
 
@@ -55,7 +56,7 @@ class Movie
     long double GetDuration() const;
 
     private:
-    unsigned long long m_width, m_height, m_fps, m_frameIndex, m_colorStride, m_imgSize;
+    unsigned long long m_width, m_height, m_fps, m_numFrames, m_movieId, m_colorStride, m_imgSize;
     long double m_aspectRatio, m_duration;
-    std::vector<std::shared_ptr<Frame>> m_spFrames;
+    static unsigned long long m_nextId;
 };

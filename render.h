@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef render_threads
+#define render_threads 1
+#endif
+
 #include <memory>
 #include <stdexcept>
 

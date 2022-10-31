@@ -29,10 +29,13 @@ Frag
 {
     fVec2 st = FragCoord/Res;
     st.x *= 1.*Res.x/Res.y;
-    st = (st-fVec2(1.25, .5))/(.4*sin(Time) + .1);
+    st = (st-fVec2(1.25, .5))/(.4*(sin(Time)/2 + .5) + .1);
     complex<long double> c(st.x, st.y);
     long double mandelval = 1.*(MAXITS-mandel(c))/MAXITS;
     out = ToRGB(HSV(fmod(180*Time, 360), 1, 1))*mandelval;
+    out.r = 1-out.r;
+    out.g = 1-out.g;
+    out.b = 1-out.b;
 };
 
 
@@ -44,8 +47,8 @@ Frag
 
 int main()
 {
-    auto spScene = make_shared<Scene2d>(60, 12);
+    auto spScene = make_shared<Scene2d>(60, 2);
     Render2d r2d(2560, 1440, spScene);
-    r2d.QueueShader(mandelbrot);
+    r2d.QueueShader(rainbow);
     r2d.RenderAll()->Output("output");
 }

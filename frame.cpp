@@ -1,9 +1,4 @@
-#include <fstream>
-
 #include "frame.h"
-
-#define cimg_display 0
-#include "CImg.h"
 
 #include <chrono>
 #include <iostream>
@@ -11,6 +6,7 @@
 using namespace std;
 using namespace cimg_library;
 
+// Frame
 Frame::Frame(unsigned long long width, unsigned long long height)
     : m_width{width}, m_height{height}, m_colorStride{width*height}, m_size{m_colorStride*3},
     m_aspectRatio{(long double)width/(long double)height}, m_pImage{new unsigned char[m_size]}
@@ -19,7 +15,7 @@ Frame::Frame(unsigned long long width, unsigned long long height)
 void Frame::Output(string filename) const
 {
     string fullname = filename + ".png";
-    cout << "Exporting frame as image: " << fullname << "...\n";
+    cout << "\nExporting frame as image: " << fullname << "...\n";
     auto start = chrono::high_resolution_clock::now();
     CImg<unsigned char> out(m_pImage, m_width, m_height, 1, 3);
     out.save_png(fullname.c_str());
@@ -55,12 +51,12 @@ Frame::~Frame()
     delete[] m_pImage;
 }
 
+// Movie
+unsigned long long Movie::m_nextId = 0;
 Movie::Movie(unsigned long long width, unsigned long long height, unsigned long long fps, unsigned long long numFrames)
-    : m_width{width}, m_height{height}, m_fps{fps}, m_frameIndex{0}, m_colorStride{width*height}, m_imgSize{m_colorStride*3},
-    m_aspectRatio{(long double)width/(long double)height}, m_duration{(long double)(numFrames)/fps}
-{
-    m_spFrames.resize(numFrames);
-}
+    : m_width{width}, m_height{height}, m_fps{fps}, m_numFrames{numFrames}, m_movieId{m_nextId++}, m_colorStride{width*height},
+    m_imgSize{m_colorStride*3}, m_aspectRatio{(long double)width/(long double)height}, m_duration{(long double)(numFrames)/fps}
+{}
 
 void Movie::Output(string filename) const
 {
@@ -68,30 +64,25 @@ void Movie::Output(string filename) const
     cout << "\nExporting movie: " << fullname << "...\n";
 
     auto start = chrono::high_resolution_clock::now();
-    CImgList<unsigned char> mov(m_spFrames.size());
-    for (size_t i = 0; i < m_spFrames.size(); i++)
-    {
-        mov(i) = CImg<unsigned char>(m_spFrames[i]->m_pImage, m_width, m_height, 1, 3);
-    }
 
-    mov.save_ffmpeg_external(fullname.c_str(), m_fps, 0, 8192);
+    string cmd = "ffmpeg -y -v -8 -framerate " + to_string(m_fps)
+        + " -f image2 -i temp/temp-" + to_string(m_movieId) + "-%d.png -c h264 -pix_fmt yuv420p -b:v 32768k "
+        + fullname;
+    cimg::system(cmd.c_str());
+    cimg::system(("rm temp/temp-" + to_string(m_movieId) + "-*").c_str());
     
     cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
 }
 
-shared_ptr<Frame> Movie::operator[](unsigned long long index)
+void Movie::WriteFrame(shared_ptr<Frame> spFrame, unsigned long long frameIndex)
 {
-    return m_spFrames.at(index);
-}
-
-void Movie::WriteFrame(shared_ptr<Frame> spFrame)
-{
-    if (m_frameIndex == m_spFrames.size())
+    if (frameIndex >= m_numFrames)
     {
-        throw runtime_error("Frame buffer is full!");
+        throw runtime_error("Invalid frame index recieved!");
     }
 
-    m_spFrames[m_frameIndex++] = spFrame;
+    string filename = "temp/temp-" + to_string(m_movieId) + "-" + to_string(frameIndex) + ".png";
+    CImg<unsigned char>(spFrame->m_pImage, m_width, m_height, 1, 3).save_png(filename.c_str());
 }
 
 unsigned long long Movie::GetHeight() const
@@ -111,7 +102,7 @@ unsigned long long Movie::GetFps() const
 
 unsigned long long Movie::GetNumFrames() const
 {
-    return m_spFrames.size();
+    return m_numFrames;
 }
 
 long double Movie::GetAspect() const
