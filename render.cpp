@@ -3,7 +3,6 @@
 #include <atomic>
 #include <chrono>
 #include <iostream>
-#include <queue>
 #include <stdexcept>
 #include <thread>
 
@@ -167,6 +166,24 @@ class WorkerThread
     atomic_ullong &m_aFramesComplete;
 };
 
+shared_ptr<Scene2d> Render2d::GetScene()
+{
+    return m_spScene;
+}
+
+void ThreadRender(Render2d *_this, shared_ptr<Movie> spMovie, atomic_ullong *aFrameIndex)
+{
+    unsigned long long numFrames = spMovie->GetNumFrames();
+    for (unsigned long long frameInd = (*aFrameIndex)++; frameInd < numFrames; frameInd = (*aFrameIndex)++)
+    {
+        spMovie->WriteFrame(_this->Render(_this->GetScene()->GetTimeSeq()[frameInd], false), frameInd);
+        if (frameInd % 5 == 0 || frameInd == numFrames)
+        {
+            cout << 100.*frameInd/spMovie->GetNumFrames() << "%\n";
+        }
+    }
+}
+
 shared_ptr<Movie> Render2d::RenderAll()
 {
     if (render_threads <= 0)
@@ -180,22 +197,18 @@ shared_ptr<Movie> Render2d::RenderAll()
         << spMovie->GetNumFrames() << " frames (" << spMovie->GetDuration() << "s)\n";
 
     auto start = chrono::high_resolution_clock::now();
-    atomic_ullong aFramesComplete(0);
-    vector<WorkerThread> workerThreads(render_threads, WorkerThread(spMovie, this, aFramesComplete));
+    atomic_ullong aFrameIndex(0);
+    vector<thread> renderThreads;
 
-    for (size_t i = 0; i < spMovie->GetNumFrames(); i++)
+    for (unsigned long long i = 0; i < render_threads; i++)
     {
-        workerThreads[i%render_threads].QueueJob(m_spScene->GetTimeSeq()[i], i);
+        renderThreads.emplace_back(ThreadRender, this, spMovie, &aFrameIndex);
     }
 
-    for (auto &wt : workerThreads)
+    // Wait for completion
+    for (auto &rt : renderThreads)
     {
-        wt.Start();
-    }
-
-    for (auto &wt : workerThreads)
-    {
-        wt.Join();
+        rt.join();
     }
 
     cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";

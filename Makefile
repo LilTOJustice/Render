@@ -1,6 +1,6 @@
 FLAGS=-O3
 
-debug: main.o frame.o linalg.o render.o scene2d.o scene3d.o shapes.o
+a.out: main.o frame.o linalg.o render.o scene2d.o scene3d.o shapes.o
 	g++ main.o frame.o linalg.o render.o scene2d.o scene3d.o shapes.o $(FLAGS) -pthread
 
 main.o: main.cpp render.h shader.h scene2d.h scene3d.h linalg.h shapes.h frame.h

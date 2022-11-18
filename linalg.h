@@ -282,6 +282,7 @@ typedef T_Vec3<unsigned char&> RGBRef;
 typedef T_Vec4<unsigned char&> RGBARef;
 typedef T_Vec3<long double> HSV;
 
+// Color functions
 template<typename T>
 T max(T first, T second)
 {
@@ -294,7 +295,6 @@ T min(T first, T second)
     return (first < second ? first : second);
 }
 
-// Color functions
 const long double DEGPERPI = 180/3.14159265;
 HSV ToHSV(const RGB &rgb);
 RGB ToRGB(const HSV &hsv);

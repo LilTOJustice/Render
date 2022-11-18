@@ -69,7 +69,7 @@ void Movie::Output(string filename) const
         + " -f image2 -i temp/temp-" + to_string(m_movieId) + "-%d.png -c h264 -pix_fmt yuv420p -b:v 32768k "
         + fullname;
     cimg::system(cmd.c_str());
-    cimg::system(("rm temp/temp-" + to_string(m_movieId) + "-*").c_str());
+    system(("rm temp/temp-" + to_string(m_movieId) + "-*").c_str());
     
     cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
 }

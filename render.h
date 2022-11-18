@@ -20,6 +20,7 @@ class Render2d
     public:
     std::shared_ptr<Frame> Render(long double time = 0, bool verbose = true);
     std::shared_ptr<Movie> RenderAll();
+    std::shared_ptr<Scene2d> GetScene();
     void QueueShader(const FragShader &shader);
 
     Render2d(long long xRes, long long yRes, std::shared_ptr<Scene2d> spScene);
