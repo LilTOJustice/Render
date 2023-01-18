@@ -9,7 +9,7 @@ using namespace cimg_library;
 // Frame
 Frame::Frame(ull_t width, ull_t height)
     : m_width{width}, m_height{height}, m_colorStride{width*height}, m_size{m_colorStride*3},
-    m_aspectRatio{(ld_t)width/(ld_t)height}, m_pImage{new byte[m_size]}
+    m_aspectRatio{(ld_t)width/(ld_t)height}, m_pImage{new byte_t[m_size]}
 {}
 
 void Frame::Output(string filename) const
@@ -17,7 +17,7 @@ void Frame::Output(string filename) const
     string fullname = filename + ".png";
     cout << "\nExporting frame as image: " << fullname << "...\n";
     auto start = chrono::high_resolution_clock::now();
-    CImg<byte> out(m_pImage, m_width, m_height, 1, 3);
+    CImg<byte_t> out(m_pImage, m_width, m_height, 1, 3);
     out.save_png(fullname.c_str());
     cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
 }
@@ -82,7 +82,7 @@ void Movie::WriteFrame(shared_ptr<Frame> spFrame, ull_t frameIndex)
     }
 
     string filename = "temp/temp-" + to_string(m_movieId) + "-" + to_string(frameIndex) + ".png";
-    CImg<byte>(spFrame->m_pImage, m_width, m_height, 1, 3).save_png(filename.c_str());
+    CImg<byte_t>(spFrame->m_pImage, m_width, m_height, 1, 3).save_png(filename.c_str());
 }
 
 ull_t Movie::GetHeight() const

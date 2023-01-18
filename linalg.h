@@ -5,7 +5,7 @@
 typedef unsigned long long ull_t;
 typedef long long ll_t;
 typedef long double ld_t;
-typedef unsigned char byte;
+typedef unsigned char byte_t;
 
 template<typename T>
 struct T_Vec2
@@ -302,10 +302,10 @@ typedef T_Vec4<ull_t> uVec4;
 typedef T_Vec3<ld_t> Rot;
 
 // Color
-typedef T_Vec3<byte> RGB;
-typedef T_Vec4<byte> RGBA;
-typedef T_Vec3<byte&> RGBRef;
-typedef T_Vec4<byte&> RGBARef;
+typedef T_Vec3<byte_t> RGB;
+typedef T_Vec4<byte_t> RGBA;
+typedef T_Vec3<byte_t&> RGBRef;
+typedef T_Vec4<byte_t&> RGBARef;
 typedef T_Vec3<ld_t> HSV;
 
 // Color functions

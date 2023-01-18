@@ -23,7 +23,7 @@ RGB ToRGB(const HSV &hsv)
     ld_t M = 255*V;
     ld_t m = M*(1-S);
     ld_t z = (M-m)*(1 - fabs(fmod(H/60, 2) - 1));
-    byte R, G, B;
+    byte_t R, G, B;
     if (H < 60)
     {
         R = M;

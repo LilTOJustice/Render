@@ -29,7 +29,7 @@ class Frame
     private:
     ull_t m_width, m_height, m_colorStride, m_size;
     ld_t m_aspectRatio;
-    byte* m_pImage;
+    byte_t* m_pImage;
 
     friend class Movie;
 };
