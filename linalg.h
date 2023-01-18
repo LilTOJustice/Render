@@ -2,6 +2,11 @@
 
 #include <cmath>
 
+typedef unsigned long long ull_t;
+typedef long long ll_t;
+typedef long double ld_t;
+typedef unsigned char byte;
+
 template<typename T>
 struct T_Vec2
 {
@@ -49,27 +54,33 @@ struct T_Vec2
     }
 
     template<typename O>
-    T_Vec2<long double> operator/(const T_Vec2<O> &other) const
+    T_Vec2<ld_t> operator/(const T_Vec2<O> &other) const
     {
-        return T_Vec2<long double>{(long double)x/other.x, (long double)y/other.y};
+        return T_Vec2<ld_t>{(ld_t)x/other.x, (ld_t)y/other.y};
     }
 
-    T_Vec2<long double> operator*(const long double scalar) const
+    T_Vec2<ld_t> operator*(const ld_t scalar) const
     {
-        return T_Vec2<long double>{(long double)(x*scalar), (long double)(y*scalar)};
+        return T_Vec2<ld_t>{(ld_t)(x*scalar), (ld_t)(y*scalar)};
     }
 
-    T_Vec2<long double> operator/(const long double scalar) const
+    T_Vec2<ld_t> operator/(const ld_t scalar) const
     {
-        return T_Vec2<long double>{(long double)(x/scalar), (long double)(y/scalar)};
+        return T_Vec2<ld_t>{(ld_t)(x/scalar), (ld_t)(y/scalar)};
     }
 
-    long double Mag()
+    template<typename O>
+    bool operator==(const T_Vec2<O> &other) const
+    {
+        return x == other.x && y == other.y;
+    }
+
+    ld_t Mag()
     {
         return hypot(x, y);
     }
 
-    T_Vec2<long double> Norm()
+    T_Vec2<ld_t> Norm()
     {
         return (*this)/Mag();
     }
@@ -137,27 +148,33 @@ struct T_Vec3
     }
 
     template<typename O>
-    T_Vec3<long double> operator/(const T_Vec3<O> &other) const
+    T_Vec3<ld_t> operator/(const T_Vec3<O> &other) const
     {
-        return T_Vec3<long double>{(long double)x/other.x, (long double)y/other.y, (long double)z/other.z};
+        return T_Vec3<ld_t>{(ld_t)x/other.x, (ld_t)y/other.y, (ld_t)z/other.z};
     }
 
-    T_Vec3<long double> operator*(const long double scalar) const
+    T_Vec3<ld_t> operator*(const ld_t scalar) const
     {
-        return T_Vec3<long double>{(long double)(x*scalar), (long double)(y*scalar), (long double)(z*scalar)};
+        return T_Vec3<ld_t>{(ld_t)(x*scalar), (ld_t)(y*scalar), (ld_t)(z*scalar)};
     }
 
-    T_Vec3<long double> operator/(const long double scalar) const
+    T_Vec3<ld_t> operator/(const ld_t scalar) const
     {
-        return T_Vec3<long double>{(long double)(x/scalar), (long double)(y/scalar), (long double)(z/scalar)};
+        return T_Vec3<ld_t>{(ld_t)(x/scalar), (ld_t)(y/scalar), (ld_t)(z/scalar)};
     }
 
-    long double Mag()
+    template<typename O>
+    bool operator==(const T_Vec3<O> &other) const
+    {
+        return x == other.x && y == other.y && z == other.z;
+    }
+
+    ld_t Mag()
     {
         return hypot(x, y, z);
     }
 
-    T_Vec3<long double> Norm()
+    T_Vec3<ld_t> Norm()
     {
         return (*this)/Mag();
     }
@@ -239,48 +256,57 @@ struct T_Vec4
     }
 
     template<typename O>
-    T_Vec4<long double> operator/(const T_Vec4<O> &other) const
+    T_Vec4<ld_t> operator/(const T_Vec4<O> &other) const
     {
-        return T_Vec4<long double>{(long double)x/other.x, (long double)y/other.y, (long double)z/other.z, (long double)w/other.w};
+        return T_Vec4<ld_t>{(ld_t)x/other.x, (ld_t)y/other.y, (ld_t)z/other.z, (ld_t)w/other.w};
     }
 
-    T_Vec4<long double> operator*(const long double scalar) const
+    T_Vec4<ld_t> operator*(const ld_t scalar) const
     {
-        return T_Vec4<long double>{(long double)(x*scalar), (long double)(y*scalar), (long double)(z*scalar), (long double)(w*scalar)};
+        return T_Vec4<ld_t>{(ld_t)(x*scalar), (ld_t)(y*scalar), (ld_t)(z*scalar), (ld_t)(w*scalar)};
     }
 
-    T_Vec4<long double> operator/(const long double scalar) const
+    T_Vec4<ld_t> operator/(const ld_t scalar) const
     {
-        return T_Vec4<long double>{(long double)(x/scalar), (long double)(y/scalar), (long double)(z/scalar), (long double)(w/scalar)};
+        return T_Vec4<ld_t>{(ld_t)(x/scalar), (ld_t)(y/scalar), (ld_t)(z/scalar), (ld_t)(w/scalar)};
     }
 
-    long double Mag()
+    template<typename O>
+    bool operator==(const T_Vec4<O> &other) const
+    {
+        return x == other.x && y == other.y && z == other.z && w == other.w;
+    }
+
+    ld_t Mag()
     {
         return hypot(x, y, z, w);
     }
 
-    T_Vec4<long double> Norm()
+    T_Vec4<ld_t> Norm()
     {
         return (*this)/Mag();
     }
 };
 
 // Math
-typedef T_Vec2<long long> Vec2;
-typedef T_Vec3<long long> Vec3;
-typedef T_Vec4<long long> Vec4;
-typedef T_Vec2<long double> fVec2;
-typedef T_Vec3<long double> fVec3;
-typedef T_Vec4<long double> fVec4;
+typedef T_Vec2<ll_t> Vec2;
+typedef T_Vec3<ll_t> Vec3;
+typedef T_Vec4<ll_t> Vec4;
+typedef T_Vec2<ld_t> fVec2;
+typedef T_Vec3<ld_t> fVec3;
+typedef T_Vec4<ld_t> fVec4;
+typedef T_Vec2<ull_t> uVec2;
+typedef T_Vec3<ull_t> uVec3;
+typedef T_Vec4<ull_t> uVec4;
 
-typedef T_Vec3<long double> Rot;
+typedef T_Vec3<ld_t> Rot;
 
 // Color
-typedef T_Vec3<unsigned char> RGB;
-typedef T_Vec4<unsigned char> RGBA;
-typedef T_Vec3<unsigned char&> RGBRef;
-typedef T_Vec4<unsigned char&> RGBARef;
-typedef T_Vec3<long double> HSV;
+typedef T_Vec3<byte> RGB;
+typedef T_Vec4<byte> RGBA;
+typedef T_Vec3<byte&> RGBRef;
+typedef T_Vec4<byte&> RGBARef;
+typedef T_Vec3<ld_t> HSV;
 
 // Color functions
 template<typename T>
@@ -295,6 +321,6 @@ T min(T first, T second)
     return (first < second ? first : second);
 }
 
-const long double DEGPERPI = 180/3.14159265;
+const ld_t DEGPERPI = 180/3.14159265;
 HSV ToHSV(const RGB &rgb);
 RGB ToRGB(const HSV &hsv);

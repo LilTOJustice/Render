@@ -5,7 +5,7 @@
 #include "linalg.h"
 
 // Frag shaders
-#define FRAGPARAMLIST RGBRef out, const Vec2 &FragCoord, const Vec2 &Res, long double Time
+#define FRAGPARAMLIST RGBRef out, const uVec2 &FragCoord, const uVec2 &Res, const ld_t time
 #define Frag [](FRAGPARAMLIST)
 
 typedef std::function<void(FRAGPARAMLIST)> FragShader;

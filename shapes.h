@@ -10,17 +10,17 @@ class Solid
 class Sprite
 {
     public:
-        Sprite(unsigned long long width, unsigned long long height)
+        Sprite(ull_t width, ull_t height)
             : m_width{width}, m_height{height}, m_pPixMap{new RGBA[height*width]}
         {}
 
-        unsigned long long GetWidth();
-        unsigned long long GetHeight();
+        ull_t GetWidth();
+        ull_t GetHeight();
         RGBA* GetPixMap();
 
         ~Sprite();
 
     private:
-        unsigned long long m_width, m_height;
+        ull_t m_width, m_height;
         RGBA* m_pPixMap;
 };

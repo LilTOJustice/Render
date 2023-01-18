@@ -3,12 +3,12 @@
 // Color functions
 HSV ToHSV(const RGB &rgb)
 {
-    long double R = rgb.r, G = rgb.g, B = rgb.b;
-    long double M = max(max(R, G), B);
-    long double m = min(min(R, G), B);
-    long double V = M/255;
-    long double S = (M > 0 ? 1 - M/m : 0);
-    long double H = acos((R - .5*G - .5*B)/sqrt(R*R + G*G + B*B - R*G - R*B - G*B))*DEGPERPI;
+    ld_t R = rgb.r, G = rgb.g, B = rgb.b;
+    ld_t M = max(max(R, G), B);
+    ld_t m = min(min(R, G), B);
+    ld_t V = M/255;
+    ld_t S = (M > 0 ? 1 - M/m : 0);
+    ld_t H = acos((R - .5*G - .5*B)/sqrt(R*R + G*G + B*B - R*G - R*B - G*B))*DEGPERPI;
     if (B > G)
     {
         H = 360 - H;
@@ -19,11 +19,11 @@ HSV ToHSV(const RGB &rgb)
 
 RGB ToRGB(const HSV &hsv)
 {
-    long double H = hsv.h, S = hsv.s, V = hsv.v;
-    long double M = 255*V;
-    long double m = M*(1-S);
-    long double z = (M-m)*(1 - fabs(fmod(H/60, 2) - 1));
-    unsigned char R, G, B;
+    ld_t H = hsv.h, S = hsv.s, V = hsv.v;
+    ld_t M = 255*V;
+    ld_t m = M*(1-S);
+    ld_t z = (M-m)*(1 - fabs(fmod(H/60, 2) - 1));
+    byte R, G, B;
     if (H < 60)
     {
         R = M;

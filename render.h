@@ -18,15 +18,15 @@ class Render2d
     Render2d& operator=(const Render2d &) = delete;
 
     public:
-    std::shared_ptr<Frame> Render(long double time = 0, bool verbose = true);
+    std::shared_ptr<Frame> Render(ld_t time = 0, bool verbose = true);
     std::shared_ptr<Movie> RenderAll();
     std::shared_ptr<Scene2d> GetScene();
     void QueueShader(const FragShader &shader);
 
-    Render2d(long long xRes, long long yRes, std::shared_ptr<Scene2d> spScene);
+    Render2d(ull_t xRes, ull_t yRes, std::shared_ptr<Scene2d> spScene);
 
     private:
-    long long m_xRes, m_yRes;
+    ull_t m_xRes, m_yRes;
     std::shared_ptr<Scene2d> m_spScene;
     std::queue<FragShader> m_shaderQueue;
 };
@@ -40,7 +40,7 @@ class Render3d
     std::shared_ptr<Frame> Render();
     void QueueShader(const FragShader &shader);
 
-    Render3d(long long xRes, long long yRes, std::shared_ptr<Scene3d> spScene)
+    Render3d(ull_t xRes, ull_t yRes, std::shared_ptr<Scene3d> spScene)
         : m_xRes{xRes}, m_yRes{yRes}, m_spScene{spScene}
     {
         if (xRes < 1 || yRes < 1)
@@ -50,7 +50,7 @@ class Render3d
     }
 
     private:
-    long long m_xRes, m_yRes;
+    ull_t m_xRes, m_yRes;
     std::shared_ptr<Scene3d> m_spScene;
     std::queue<FragShader> m_shaderQueue;
 };

@@ -12,24 +12,24 @@
 class Frame
 {
     public:
-    Frame(unsigned long long width, unsigned long long height);
+    Frame(ull_t width, ull_t height);
 
     void Output(std::string filename) const;
 
-    RGBRef operator[](unsigned long long index);
+    RGBRef operator[](ull_t index);
 
-    unsigned long long GetWidth() const;
+    ull_t GetWidth() const;
 
-    unsigned long long GetHeight() const;
+    ull_t GetHeight() const;
 
-    long double GetAspect() const;
+    ld_t GetAspect() const;
 
     ~Frame();
 
     private:
-    unsigned long long m_width, m_height, m_colorStride, m_size;
-    long double m_aspectRatio;
-    unsigned char* m_pImage;
+    ull_t m_width, m_height, m_colorStride, m_size;
+    ld_t m_aspectRatio;
+    byte* m_pImage;
 
     friend class Movie;
 };
@@ -37,26 +37,26 @@ class Frame
 class Movie
 {
     public:
-    Movie(unsigned long long width, unsigned long long height, unsigned long long fps, unsigned long long numFrames);
+    Movie(ull_t width, ull_t height, ull_t fps, ull_t numFrames);
 
     void Output(std::string filename) const;
 
-    void WriteFrame(std::shared_ptr<Frame> spFrame, unsigned long long frameIndex);
+    void WriteFrame(std::shared_ptr<Frame> spFrame, ull_t frameIndex);
 
-    unsigned long long GetWidth() const;
+    ull_t GetWidth() const;
 
-    unsigned long long GetHeight() const;
+    ull_t GetHeight() const;
 
-    unsigned long long GetFps() const;
+    ull_t GetFps() const;
 
-    unsigned long long GetNumFrames() const;
+    ull_t GetNumFrames() const;
 
-    long double GetAspect() const;
+    ld_t GetAspect() const;
 
-    long double GetDuration() const;
+    ld_t GetDuration() const;
 
     private:
-    unsigned long long m_width, m_height, m_fps, m_numFrames, m_movieId, m_colorStride, m_imgSize;
-    long double m_aspectRatio, m_duration;
-    static unsigned long long m_nextId;
+    ull_t m_width, m_height, m_fps, m_numFrames, m_movieId, m_colorStride, m_imgSize;
+    ld_t m_aspectRatio, m_duration;
+    static ull_t m_nextId;
 };

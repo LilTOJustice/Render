@@ -8,7 +8,7 @@
 
 using namespace std;
 
-Render2d::Render2d(long long xRes, long long yRes, std::shared_ptr<Scene2d> spScene)
+Render2d::Render2d(ull_t xRes, ull_t yRes, std::shared_ptr<Scene2d> spScene)
     : m_xRes{xRes}, m_yRes{yRes}, m_spScene{spScene}
 {
     if (m_spScene == nullptr)
@@ -22,7 +22,7 @@ Render2d::Render2d(long long xRes, long long yRes, std::shared_ptr<Scene2d> spSc
     }
 }
 
-shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
+shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
 {
     auto output = make_shared<Frame>(m_xRes, m_yRes);
     auto& scene = *m_spScene;
@@ -34,31 +34,35 @@ shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
     }
 
     auto start = chrono::high_resolution_clock::now();
-    for (const auto &a : scene.GetActors())
+    for (const auto &actor : scene.GetActors())
     {
-        auto spSprite = a.m_spSprite;
-        //auto* pixMap = spSprite->GetPixMap();
-        unsigned int width = spSprite->GetWidth(), height = spSprite->GetHeight();
-        cout << "Pos: (" << a.pos.x << ", " << a.pos.y << ")\n";
+        cout << "Pos: (" << actor.pos.x << ", " << actor.pos.y << ")\n";
         cout << "Center: (" << camera.center.x << ", " << camera.center.y << ")\n";
-        camera.zoom = 100;
+        camera.zoom = 1;
         cout << "Zoom: " << camera.zoom << "\n";
 
-        for (unsigned int i = 0; i < height; i++)
+        auto spSprite = actor.m_spSprite;
+        //auto* pixMap = spSprite->GetPixMap();
+        ull_t width = spSprite->GetWidth(), height = spSprite->GetHeight();
+        ull_t tWidth = width*camera.zoom, tHeight = height*camera.zoom;
+
+        for (ull_t i = 0; i < tHeight; i++)
         {
-            for (unsigned int j = 0; j < width; j++)
+            for (ull_t j = 0; j < tWidth; j++)
             {
-                fVec2 transformed = camera(
+                fVec2 transformed = camera.sstransform(
                     Vec2{
-                        a.pos.y+i-height/2,
-                        a.pos.x+j-width/2
+                        actor.pos.x+(ll_t)j-(ll_t)tWidth/2,
+                        actor.pos.y+(ll_t)i-(ll_t)tHeight/2
                     }
                 );
 
-                if (transformed.x == -1 && transformed.y == -1)
+                if (transformed.x == -1 || transformed.y == -1)
                 {
                     continue;
                 }
+
+                cout << "Transformed: (" << transformed.x << ", " << transformed.y << ")\n";
 
                 transformed.x *= output->GetWidth();
                 transformed.y *= output->GetHeight();
@@ -84,7 +88,8 @@ shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
 
     start = chrono::high_resolution_clock::now();
     size_t numShaders = m_shaderQueue.size();
-    Vec2 screenRes(m_xRes, m_yRes);
+    uVec2 screenRes(m_xRes, m_yRes);
+
     for (size_t i = 0; i < m_shaderQueue.size(); i++)
     {
         FragShader shader = m_shaderQueue.front();
@@ -98,7 +103,7 @@ shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
         {
             for (size_t j = 0; j < output->GetWidth(); j++)
             {
-                shader((*output.get())[i*output->GetWidth()+j], Vec2(j, (output->GetHeight()-1)-i), screenRes, time);
+                shader((*output.get())[i*output->GetWidth()+j], uVec2{j, (output->GetHeight()-1)-i}, screenRes, time);
             }
         }
 
@@ -117,8 +122,8 @@ shared_ptr<Frame> Render2d::Render(long double time, bool verbose)
 
 struct jobinfo
 {
-    long double time;
-    unsigned long long frameIndex;
+    ld_t time;
+    ull_t frameIndex;
 };
 
 class WorkerThread
@@ -130,16 +135,18 @@ class WorkerThread
             const jobinfo &ji = jobQueue->front();
             spMovie->WriteFrame(pRenderer->Render(ji.time, false), ji.frameIndex);
             (*aFramesComplete)++;
+            
             if (*aFramesComplete % 5 == 0 || *aFramesComplete == spMovie->GetNumFrames())
             {
                 cout << 100.*(*aFramesComplete)/spMovie->GetNumFrames() << "%\n";
             }
+
             jobQueue->pop();
         }
     }
 
     public:
-    void QueueJob(long double time, unsigned long long frameIndex)
+    void QueueJob(ld_t time, ull_t frameIndex)
     {
         m_jobQueue.push({time, frameIndex});
     }
@@ -173,8 +180,8 @@ shared_ptr<Scene2d> Render2d::GetScene()
 
 void ThreadRender(Render2d *_this, shared_ptr<Movie> spMovie, atomic_ullong *aFrameIndex)
 {
-    unsigned long long numFrames = spMovie->GetNumFrames();
-    for (unsigned long long frameInd = (*aFrameIndex)++; frameInd < numFrames; frameInd = (*aFrameIndex)++)
+    ull_t numFrames = spMovie->GetNumFrames();
+    for (ull_t frameInd = (*aFrameIndex)++; frameInd < numFrames; frameInd = (*aFrameIndex)++)
     {
         spMovie->WriteFrame(_this->Render(_this->GetScene()->GetTimeSeq()[frameInd], false), frameInd);
         if (frameInd % 5 == 0 || frameInd == numFrames)
@@ -200,7 +207,7 @@ shared_ptr<Movie> Render2d::RenderAll()
     atomic_ullong aFrameIndex(0);
     vector<thread> renderThreads;
 
-    for (unsigned long long i = 0; i < render_threads; i++)
+    for (ull_t i = 0; i < render_threads; i++)
     {
         renderThreads.emplace_back(ThreadRender, this, spMovie, &aFrameIndex);
     }

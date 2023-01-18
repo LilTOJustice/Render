@@ -1,11 +1,11 @@
 #include "shapes.h"
 
-unsigned long long Sprite::GetWidth()
+ull_t Sprite::GetWidth()
 {
     return m_width;
 }
 
-unsigned long long Sprite::GetHeight()
+ull_t Sprite::GetHeight()
 {
     return m_height;
 }
