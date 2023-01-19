@@ -1,6 +1,7 @@
 #include "frame.h"
 
 #include <chrono>
+#include <filesystem>
 #include <iostream>
 
 using namespace std;
@@ -60,6 +61,7 @@ Movie::Movie(ull_t width, ull_t height, ull_t fps, ull_t numFrames)
 
 void Movie::Output(string filename) const
 {
+    filesystem::create_directory("temp");
     string fullname = filename + ".mp4";
     cout << "\nExporting movie: " << fullname << "...\n";
 
@@ -76,6 +78,7 @@ void Movie::Output(string filename) const
 
 void Movie::WriteFrame(shared_ptr<Frame> spFrame, ull_t frameIndex)
 {
+    filesystem::create_directory("temp");
     if (frameIndex >= m_numFrames)
     {
         throw runtime_error("Invalid frame index recieved!");

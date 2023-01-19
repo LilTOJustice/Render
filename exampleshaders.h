@@ -56,9 +56,9 @@ Frag
 {
     fVec2 st = FragCoord/Res;
     st.x *= 1.*Res.x/Res.y;
-    st = (st-fVec2(1.25, .5))/.5;
+    st = (st-fVec2(1.25, .5))/.3;
     std::complex<long double> c(st.x, st.y);
-    long double mandelval = 255.*(MAXITS-multi(c, time+1))/MAXITS;
+    long double mandelval = 255.*(MAXITS-multi(c, 3*cos(time)+4))/MAXITS;
     out = RGB(1-mandelval, mandelval, mandelval);
 };
 

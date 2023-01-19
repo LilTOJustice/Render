@@ -13,7 +13,7 @@ linalg.o: linalg.cpp linalg.h
 	g++ -c linalg.cpp $(FLAGS)
 
 render.o: render.cpp render.h frame.h scene2d.h scene3d.h
-	g++ -c render.cpp $(FLAGS) -Drender_threads=16
+	g++ -c render.cpp $(FLAGS) -Drender_threads=24
 
 scene2d.o: scene2d.cpp scene2d.h shapes.h
 	g++ -c scene2d.cpp $(FLAGS)
