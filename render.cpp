@@ -107,7 +107,7 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
             }
         }
 
-        // Pop and repush
+        // Go to next shader
         m_shaderQueue.pop();
         m_shaderQueue.push(shader);
     }
@@ -139,6 +139,7 @@ class WorkerThread
             if (*aFramesComplete % 5 == 0 || *aFramesComplete == spMovie->GetNumFrames())
             {
                 cout << 100.*(*aFramesComplete)/spMovie->GetNumFrames() << "%\n";
+                
             }
 
             jobQueue->pop();

@@ -55,8 +55,12 @@ class Movie
 
     ld_t GetDuration() const;
 
+    ~Movie();
+
     private:
     ull_t m_width, m_height, m_fps, m_numFrames, m_movieId, m_colorStride, m_imgSize;
     ld_t m_aspectRatio, m_duration;
+    std::string m_tempDir;
+
     static ull_t m_nextId;
 };
