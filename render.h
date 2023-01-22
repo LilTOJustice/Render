@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef render_threads
-#define render_threads 1
-#endif
-
 #include <memory>
 #include <stdexcept>
 
@@ -18,19 +14,22 @@ class Render2d
     Render2d& operator=(const Render2d &) = delete;
 
     public:
+    Render2d(ull_t xRes, ull_t yRes, std::shared_ptr<Scene2d> spScene, ull_t numThreads = 1);
+
     std::shared_ptr<Frame> Render(ld_t time = 0, bool verbose = true);
     std::shared_ptr<Movie> RenderAll();
     std::shared_ptr<Scene2d> GetScene();
     void QueueShader(const FragShader &shader);
-
-    Render2d(ull_t xRes, ull_t yRes, std::shared_ptr<Scene2d> spScene);
+    void SetNumThreads(ull_t numThreads);
 
     private:
     ull_t m_xRes, m_yRes;
     std::shared_ptr<Scene2d> m_spScene;
-    std::queue<FragShader> m_shaderQueue;
+    std::vector<FragShader> m_shaderQueue; // Functions like a queue
+    ull_t m_numThreads;
 };
 
+/* TODO: Complete Render2d first
 class Render3d
 {
     Render3d(const Render3d &) = delete;
@@ -45,12 +44,13 @@ class Render3d
     {
         if (xRes < 1 || yRes < 1)
         {
-             throw std::runtime_error("Invalid image size.");
+            throw std::runtime_error("Invalid image size.");
         }
     }
 
     private:
     ull_t m_xRes, m_yRes;
     std::shared_ptr<Scene3d> m_spScene;
-    std::queue<FragShader> m_shaderQueue;
+    std::vector<FragShader> m_shaderQueue;
 };
+*/

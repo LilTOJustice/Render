@@ -3,13 +3,14 @@
 #include <atomic>
 #include <chrono>
 #include <iostream>
+#include <queue>
 #include <stdexcept>
 #include <thread>
 
 using namespace std;
 
-Render2d::Render2d(ull_t xRes, ull_t yRes, std::shared_ptr<Scene2d> spScene)
-    : m_xRes{xRes}, m_yRes{yRes}, m_spScene{spScene}
+Render2d::Render2d(ull_t xRes, ull_t yRes, std::shared_ptr<Scene2d> spScene, ull_t numThreads)
+    : m_xRes{xRes}, m_yRes{yRes}, m_spScene{spScene}, m_numThreads{numThreads}
 {
     if (m_spScene == nullptr)
     {
@@ -68,9 +69,7 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
                 transformed.y *= output->GetHeight();
 
                 RGBRef color = (*output.get())[transformed.y*output->GetWidth() + transformed.x];
-                color.r = 255;
-                color.g = 255;
-                color.b = 255;
+                color = RGB(255, 255, 255);
             }
         }
     }
@@ -84,32 +83,26 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
     if (verbose)
     {
         cout << "\nBeginning screen-space shader pass...\n";
+        start = chrono::high_resolution_clock::now();
     }
 
-    start = chrono::high_resolution_clock::now();
     size_t numShaders = m_shaderQueue.size();
     uVec2 screenRes(m_xRes, m_yRes);
 
-    for (size_t i = 0; i < m_shaderQueue.size(); i++)
+    for (ull_t shaderInd = 0; shaderInd < m_shaderQueue.size(); shaderInd++)
     {
-        FragShader shader = m_shaderQueue.front();
-        
         if (verbose)
         {
-            cout << "Computing shaders: (" << (m_shaderQueue.size()-numShaders) + 1 << " of " << numShaders << ")\n";
+            cout << "Computing shaders: (" << shaderInd + 1 << " of " << numShaders << ")\n";
         }
 
         for (size_t i = 0; i < output->GetHeight(); i++)
         {
             for (size_t j = 0; j < output->GetWidth(); j++)
             {
-                shader((*output.get())[i*output->GetWidth()+j], uVec2{j, (output->GetHeight()-1)-i}, screenRes, time);
+                m_shaderQueue[shaderInd]((*output.get())[i*output->GetWidth()+j], uVec2{j, (output->GetHeight()-1)-i}, screenRes, time);
             }
         }
-
-        // Go to next shader
-        m_shaderQueue.pop();
-        m_shaderQueue.push(shader);
     }
 
     if (verbose)
@@ -139,7 +132,6 @@ class WorkerThread
             if (*aFramesComplete % 5 == 0 || *aFramesComplete == spMovie->GetNumFrames())
             {
                 cout << 100.*(*aFramesComplete)/spMovie->GetNumFrames() << "%\n";
-                
             }
 
             jobQueue->pop();
@@ -194,13 +186,13 @@ void ThreadRender(Render2d *_this, shared_ptr<Movie> spMovie, atomic_ullong *aFr
 
 shared_ptr<Movie> Render2d::RenderAll()
 {
-    if (render_threads <= 0)
+    if (m_numThreads <= 0)
     {
-        throw runtime_error("Invalid number of threads given (" + to_string(render_threads) + ")!");
+        throw runtime_error("Invalid number of threads given (" + to_string(m_numThreads) + ")!");
     }
 
     auto spMovie = make_shared<Movie>(m_xRes, m_yRes, m_spScene->GetFps(), m_spScene->GetTimeSeq().size());
-    cout << "\nBeginning render " << '(' << render_threads << " thread" << (render_threads > 1 ? "s" : "") << "): "
+    cout << "\nBeginning render " << '(' << m_numThreads << " thread" << (m_numThreads > 1 ? "s" : "") << "): "
         << spMovie->GetWidth() << 'x' << spMovie->GetHeight() << " @ " << spMovie->GetFps() << " -> "
         << spMovie->GetNumFrames() << " frames (" << spMovie->GetDuration() << "s)\n";
 
@@ -208,7 +200,7 @@ shared_ptr<Movie> Render2d::RenderAll()
     atomic_ullong aFrameIndex(0);
     vector<thread> renderThreads;
 
-    for (ull_t i = 0; i < render_threads; i++)
+    for (ull_t i = 0; i < m_numThreads; i++)
     {
         renderThreads.emplace_back(ThreadRender, this, spMovie, &aFrameIndex);
     }
@@ -225,5 +217,10 @@ shared_ptr<Movie> Render2d::RenderAll()
 
 void Render2d::QueueShader(const FragShader& shader)
 {
-    m_shaderQueue.push(shader);
+    m_shaderQueue.push_back(shader);
+}
+
+void Render2d::SetNumThreads(ull_t numThreads)
+{
+    m_numThreads = numThreads;
 }

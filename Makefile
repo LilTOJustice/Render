@@ -1,4 +1,4 @@
-FLAGS=-O3
+FLAGS=-O3 -std=c++17
 
 a.out: main.o frame.o linalg.o render.o scene2d.o scene3d.o shapes.o
 	g++ main.o frame.o linalg.o render.o scene2d.o scene3d.o shapes.o $(FLAGS) -pthread
@@ -13,7 +13,7 @@ linalg.o: linalg.cpp linalg.h
 	g++ -c linalg.cpp $(FLAGS)
 
 render.o: render.cpp render.h frame.h scene2d.h scene3d.h
-	g++ -c render.cpp $(FLAGS) -Drender_threads=24
+	g++ -c render.cpp $(FLAGS) 
 
 scene2d.o: scene2d.cpp scene2d.h shapes.h
 	g++ -c scene2d.cpp $(FLAGS)

@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <memory>
-#include <queue>
 
 #include "shapes.h"
 
