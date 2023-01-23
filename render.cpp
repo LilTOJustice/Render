@@ -1,7 +1,6 @@
 #include "render.h"
 
 #include <atomic>
-#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <queue>
@@ -10,6 +9,8 @@
 #define NUMBARS 50
 
 using namespace std;
+
+const string loadSeq = "|/-\\";
 
 Render2d::Render2d(ull_t xRes, ull_t yRes, std::shared_ptr<Scene2d> spScene, ull_t numThreads)
     : m_xRes{xRes}, m_yRes{yRes}, m_spScene{spScene}, m_numThreads{numThreads}
@@ -137,6 +138,7 @@ void ThreadRender(Render2d *_this, shared_ptr<Movie> spMovie, atomic_ullong *aFr
 
 void printBar(ull_t frameIndex, ull_t numFrames, ull_t totalBars)
 {
+    static ull_t loadSeqInd = 0;
     ull_t numBars = 1.*frameIndex/numFrames*totalBars;
 
     cout << "\r[";
@@ -145,11 +147,12 @@ void printBar(ull_t frameIndex, ull_t numFrames, ull_t totalBars)
         cout << '|';
     }
 
-    for (ull_t i = 0; i < totalBars-numBars; i++)
+    for (ull_t i = 0; i < totalBars - numBars; i++)
     {
         cout << ' ';
     }
-    cout << "] " << frameIndex << '/' << numFrames << " (" << fixed << 100.*frameIndex/numFrames << ")%";
+
+    cout << "] " << frameIndex << '/' << numFrames << " (" << fixed << 100.*frameIndex/numFrames << ")% " << loadSeq[(loadSeqInd++) % loadSeq.size()];
     cout.flush();
 }
 
@@ -176,8 +179,6 @@ shared_ptr<Movie> Render2d::RenderAll()
     }
 
     // Wait for completion
-    cout << '\n';
-
     while (aFrameIndex < numFrames)
     {
         printBar(aFrameIndex, numFrames, NUMBARS);
