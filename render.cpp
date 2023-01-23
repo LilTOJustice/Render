@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <queue>
 #include <stdexcept>
@@ -31,7 +32,7 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
     auto output = make_shared<Frame>(m_xRes, m_yRes);
     auto& scene = *m_spScene;
     auto& camera = scene.GetCamera();
-    camera.zoom = 1;
+    uVec2 screenRes(m_xRes, m_yRes);
 
     if (verbose)
     {
@@ -44,8 +45,8 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
         for (ull_t j = 0; j < m_xRes; j++)
         {
             size_t arrayLoc = i*output->GetWidth() + j;
-            (*output.get())[arrayLoc] = RGB{0, 0, 0}; // TODO: Define some variable for default color
-            Vec2 worldCoord = camera.sstransform(uVec2{j, i}, uVec2{m_xRes, m_yRes});
+            (*output.get())[arrayLoc] = scene.GetBgColor();
+            Vec2 worldCoord = camera.sstransform(uVec2{j, i}, screenRes); 
 
             for (const auto &actor : scene.GetActors())
             {
@@ -56,8 +57,16 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
                 {
                     auto spSprite = actor.m_spSprite;
                     auto* pixMap = spSprite->GetPixMap();
+                    uVec2 pixMapSize{spSprite->GetWidth(), spSprite->GetHeight()};
+
                     uVec2 pixMapInd = ((worldCoord - topLeft) / (bottomRight - topLeft)) * uVec2{spSprite->GetWidth() - 1, spSprite->GetHeight() - 1};
                     RGB color = pixMap[pixMapInd.y * spSprite->GetWidth() + pixMapInd.x].rgb;
+
+                    for (const FragShader &fs : spSprite->GetShaderQueue())
+                    {
+                        fs(color, color, uVec2{pixMapInd.x, (spSprite->GetHeight() - 1) - pixMapInd.y}, pixMapSize, time);
+                    }
+
                     (*output.get())[arrayLoc] = color;
                 }
             }
@@ -73,21 +82,14 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
         start = chrono::high_resolution_clock::now();
     }
 
-    size_t numShaders = m_shaderQueue.size();
-    uVec2 screenRes(m_xRes, m_yRes);
 
-    for (ull_t shaderInd = 0; shaderInd < m_shaderQueue.size(); shaderInd++)
+    for (const FragShader &fs : m_shaderQueue)
     {
-        if (verbose)
-        {
-            cout << "Computing shaders: (" << shaderInd + 1 << " of " << numShaders << ")\n";
-        }
-
         for (size_t i = 0; i < output->GetHeight(); i++)
         {
             for (size_t j = 0; j < output->GetWidth(); j++)
             {
-                m_shaderQueue[shaderInd]((*output.get())[i*output->GetWidth()+j], uVec2{j, (output->GetHeight()-1)-i}, screenRes, time);
+                fs((*output.get())[i * output->GetWidth() + j], (*output.get())[i * output->GetWidth() + j], uVec2{j, (output->GetHeight() - 1) - i}, screenRes, time);
             }
         }
     }
@@ -99,12 +101,6 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
 
     return output;
 }
-
-struct jobinfo
-{
-    ld_t time;
-    ull_t frameIndex;
-};
 
 shared_ptr<Scene2d> Render2d::GetScene()
 {
@@ -120,7 +116,7 @@ void ThreadRender(Render2d *_this, shared_ptr<Movie> spMovie, atomic_ullong *aFr
     }
 }
 
-void printBar(ull_t frameIndex, ull_t numFrames, ull_t totalBars)
+void PrintBar(ull_t frameIndex, ull_t numFrames, ull_t totalBars)
 {
     static ull_t loadSeqInd = 0;
     ull_t numBars = 1.*frameIndex/numFrames*totalBars;
@@ -136,12 +132,19 @@ void printBar(ull_t frameIndex, ull_t numFrames, ull_t totalBars)
         cout << ' ';
     }
 
-    cout << "] " << frameIndex << '/' << numFrames << " (" << fixed << 100.*frameIndex/numFrames << ")% " << (frameIndex == numFrames ? ' ' : loadSeq[(loadSeqInd++) % loadSeq.size()]);
+    cout << "] " << frameIndex << '/' << numFrames 
+         << " (" << fixed << setprecision(3) << 100.*frameIndex/numFrames << ")% "
+         << (frameIndex == numFrames ? ' ' : loadSeq[(loadSeqInd++) % loadSeq.size()]);
     cout.flush();
 }
 
 shared_ptr<Movie> Render2d::RenderAll()
 {
+    if (m_spScene->GetTimeSeq().empty())
+    {
+        throw runtime_error("Movie render attempted on scene with no time sequence! Did you use the correct scene constructor?");
+    }
+
     if (m_numThreads <= 0)
     {
         throw runtime_error("Invalid number of threads given (" + to_string(m_numThreads) + ")!");
@@ -165,7 +168,7 @@ shared_ptr<Movie> Render2d::RenderAll()
     // Wait for completion
     while (aFrameIndex < numFrames)
     {
-        printBar(aFrameIndex, numFrames, NUMBARS);
+        PrintBar(aFrameIndex, numFrames, NUMBARS);
         this_thread::sleep_for(chrono::milliseconds(300));
     }
 
@@ -174,7 +177,7 @@ shared_ptr<Movie> Render2d::RenderAll()
         rt.join();
     }
 
-    printBar(numFrames, numFrames, NUMBARS);
+    PrintBar(numFrames, numFrames, NUMBARS);
 
     cout << "\nDone! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
     return spMovie;

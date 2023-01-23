@@ -23,36 +23,47 @@ Sprite::Sprite(const string filename)
     ull_t spectrum = img.spectrum();
     m_pPixMap = new RGBA[m_width * m_height];
     
-    for (ull_t i = 0; i < imgSize; i++)
+    switch(spectrum)
     {
-        if (spectrum == 1)
-        {
-            m_pPixMap[i].r = img[i];
-            m_pPixMap[i].g = 255;
-            m_pPixMap[i].b = 255;
-            m_pPixMap[i].a = 255;
-        }
-        else if (spectrum == 2)
-        {
-            m_pPixMap[i].r = img[i];
-            m_pPixMap[i].g = img[i + imgSize];
-            m_pPixMap[i].b = 255;
-            m_pPixMap[i].a = 255;
-        }
-        else if (spectrum == 3)
-        {
-            m_pPixMap[i].r = img[i];
-            m_pPixMap[i].g = img[i + imgSize];
-            m_pPixMap[i].b = img[i + 2 * imgSize];
-            m_pPixMap[i].a = 255;
-        }
-        else
-        {
-            m_pPixMap[i].r = img[i];
-            m_pPixMap[i].g = img[i + imgSize];
-            m_pPixMap[i].b = img[i + 2 * imgSize];
-            m_pPixMap[i].a = img[i + 3 * imgSize];
-        }
+        case 1:
+            for (ull_t i = 0; i < imgSize; i++)
+            {
+                m_pPixMap[i].r = img[i];
+                m_pPixMap[i].g = 255;
+                m_pPixMap[i].b = 255;
+                m_pPixMap[i].a = 255;    
+            }
+            break;
+
+        case 2:
+            for (ull_t i = 0; i < imgSize; i++)
+            {
+                m_pPixMap[i].r = img[i];
+                m_pPixMap[i].g = img[i + imgSize];
+                m_pPixMap[i].b = 255;
+                m_pPixMap[i].a = 255;    
+            }
+            break;
+
+        case 3:
+            for (ull_t i = 0; i < imgSize; i++)
+            {
+                m_pPixMap[i].r = img[i];
+                m_pPixMap[i].g = img[i + imgSize];
+                m_pPixMap[i].b = img[i + 2 * imgSize];
+                m_pPixMap[i].a = 255;
+            }
+            break;
+
+        default:
+            for (ull_t i = 0; i < imgSize; i++)
+            {
+
+                m_pPixMap[i].r = img[i];
+                m_pPixMap[i].g = img[i + imgSize];
+                m_pPixMap[i].b = img[i + 2 * imgSize];
+                m_pPixMap[i].a = img[i + 3 * imgSize];
+            }
     }
 }
 
@@ -69,6 +80,16 @@ ull_t Sprite::GetHeight()
 RGBA* Sprite::GetPixMap()
 {
     return m_pPixMap;
+}
+
+vector<FragShader>& Sprite::GetShaderQueue()
+{
+    return m_shaderQueue;
+}
+        
+void Sprite::QueueShader(const FragShader &fragShader)
+{
+    m_shaderQueue.push_back(fragShader);
 }
 
 Sprite::~Sprite()

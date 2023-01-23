@@ -2,6 +2,7 @@
 #include <cmath>
 
 #include "shader.h"
+#include <iostream>
 
 const int MAXITS = 50;
 int mandel(const std::complex<long double> &c)
@@ -63,5 +64,5 @@ Frag
 FragShader rainbow =
 Frag
 {
-    out = ToRGB(HSV(fmod(180*time, 360), 1, 1));
+    out = in * (ToRGB(HSV(fmod(180*time, 360), 1, 1))/255.);
 };

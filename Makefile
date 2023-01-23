@@ -21,7 +21,7 @@ scene2d.o: scene2d.cpp scene2d.h shapes.h
 scene3d.o: scene3d.cpp scene3d.h shapes.h
 	g++ -c scene3d.cpp $(FLAGS)
 
-shapes.o: shapes.cpp shapes.h linalg.h
+shapes.o: shapes.cpp shapes.h linalg.h shader.h
 	g++ -c shapes.cpp $(FLAGS)
 
 clean:

@@ -2,8 +2,8 @@
 
 using namespace std;
 
-Scene2d::Scene2d(unsigned int fps, ld_t duration)
-    : m_fps{fps}, m_camera{Vec2{0, 0}, 1, 0}
+Scene2d::Scene2d(unsigned int fps, ld_t duration, const RGB &bgColor)
+    : m_fps{fps}, m_camera{Vec2{0, 0}, 1, 0}, m_bgColor{bgColor}
 {
     if (fps > 0)
     {
@@ -14,6 +14,10 @@ Scene2d::Scene2d(unsigned int fps, ld_t duration)
         }
     }
 }
+
+Scene2d::Scene2d(const RGB &bgColor)
+    : m_camera{Vec2{0, 0}, 1, 0}, m_bgColor{bgColor}
+{}
 
 void Scene2d::AddActor(shared_ptr<Sprite> spSprite, Vec2 pos, uVec2 size, ld_t rot, Vec2 vel)
 {
@@ -47,6 +51,11 @@ const vector<ld_t>& Scene2d::GetTimeSeq() const
 vector<Scene2d::Actor>& Scene2d::GetActors()
 {
     return m_actors;
+}
+
+RGB Scene2d::GetBgColor()
+{
+    return m_bgColor;
 }
 
 Vec2 Scene2d::Camera::sstransform(const uVec2 &pixCoord, const uVec2 &screenSize)
