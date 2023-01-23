@@ -53,7 +53,10 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
                 Vec2 bottomRight = actor.pos + Vec2{ll_t(actor.size.x / 2), -ll_t(actor.size.y / 2)};
                 Vec2 topLeft = actor.pos + Vec2{-ll_t(actor.size.x / 2), ll_t(actor.size.y / 2)};
 
-                if (worldCoord.x <= bottomRight.x && worldCoord.x >= topLeft.x && worldCoord.y >= bottomRight.y && worldCoord.y <= topLeft.y)
+                if (worldCoord.x <= bottomRight.x
+                        && worldCoord.x >= topLeft.x
+                        && worldCoord.y >= bottomRight.y
+                        && worldCoord.y <= topLeft.y)
                 {
                     auto spSprite = actor.m_spSprite;
                     auto* pixMap = spSprite->GetPixMap();

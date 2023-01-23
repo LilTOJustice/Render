@@ -2,7 +2,6 @@
 #include <cmath>
 
 #include "shader.h"
-#include <iostream>
 
 const int MAXITS = 50;
 int mandel(const std::complex<long double> &c)
