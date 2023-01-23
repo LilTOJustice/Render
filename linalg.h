@@ -22,16 +22,15 @@ struct T_Vec2
     
     template<typename O>
     T_Vec2(const T_Vec2<O> &other)
-    {
-        x = other.x;
-        y = other.y;
-    }
+        : x{T(other.x)}
+        , y{T(other.y)}
+    {}
 
     template<typename O>
     T_Vec2<T>& operator=(const T_Vec2<O> &other)
     {
-        x = other.x;
-        y = other.y;
+        x = T(other.x);
+        y = T(other.y);
         return *this;
     }
     
@@ -114,18 +113,26 @@ struct T_Vec3
 
     template<typename O>
     T_Vec3(const T_Vec3<O> &other)
-    {
-        x = other.x;
-        y = other.y;
-        z = other.z;
-    }
+        : x{T(other.x)}
+        , y{T(other.y)}
+        , z{T(other.z)}
+        , r{x}
+        , g{y}
+        , b{z}
+        , h{x}
+        , s{y}
+        , v{z}
+        , xy{T_Vec2<O&>{x, y}}
+        , xz{T_Vec2<O&>{x, z}}
+        , yz{T_Vec2<O&>{y, z}}
+    {}
 
     template<typename O>
     T_Vec3<T>& operator=(const T_Vec3<O> &other)
     {
-        x = other.x;
-        y = other.y;
-        z = other.z;
+        x = T(other.x);
+        y = T(other.y);
+        z = T(other.z);
         return *this;
     }
 
@@ -186,7 +193,7 @@ struct T_Vec4
     T x, y, z, w;
     T &r, &g, &b, &a;
     const T_Vec2<T&> xy, xz, xw, yz, yw, zw;
-    const T_Vec3<T&> xyz, xyw, xzw, yzw;
+    const T_Vec3<T&> xyz, xyw, xzw, yzw, rgb;
 
     T_Vec4()
         : x{}, y{}, z{},  w{}
@@ -201,6 +208,7 @@ struct T_Vec4
         , xyw{T_Vec3<T&>{x, y, w}}
         , xzw{T_Vec3<T&>{x, z, w}}
         , yzw{T_Vec3<T&>{y, z, w}}
+        , rgb{T_Vec3<T&>{x, y, z}}
     {}
     
     T_Vec4(const T &_x, const T &_y, const T &_z, const T &_w)
@@ -216,24 +224,39 @@ struct T_Vec4
         , xyw{T_Vec3<T&>{x, y, w}}
         , xzw{T_Vec3<T&>{x, z, w}}
         , yzw{T_Vec3<T&>{y, z, w}}
+        , rgb{T_Vec3<T&>{x, y, z}}
     {}
 
     template<typename O>
     T_Vec4(const T_Vec4<O> &other)
-    {
-        x = other.x;
-        y = other.y;
-        z = other.z;
-        w = other.w;
-    }
+        : x{T(other.x)}
+        , y{T(other.y)}
+        , z{T(other.z)}
+        , w{T(other.w)}
+        , r{x}
+        , g{y}
+        , b{z}
+        , a{w}
+        , xy{T_Vec2<O&>{x, y}}
+        , xz{T_Vec2<O&>{x, z}}
+        , xw{T_Vec2<O&>{x, w}}
+        , yz{T_Vec2<O&>{y, z}}
+        , yw{T_Vec2<O&>{y, w}}
+        , zw{T_Vec2<O&>{z, w}}
+        , xyz{T_Vec3<O&>{x, y, z}}
+        , xyw{T_Vec3<O&>{x, y, w}}
+        , xzw{T_Vec3<O&>{x, z, w}}
+        , yzw{T_Vec3<O&>{y, z, w}}
+        , rgb{T_Vec3<O&>{x, y, z}}
+    {}
 
     template<typename O>
     T_Vec4<T>& operator=(const T_Vec4<O> &other)
     {
-        x = other.x;
-        y = other.y;
-        z = other.z;
-        w = other.w;
+        x = T(other.x);
+        y = T(other.y);
+        z = T(other.z);
+        w = T(other.w);
         return *this;
     }
 

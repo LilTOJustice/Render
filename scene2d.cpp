@@ -49,14 +49,7 @@ vector<Scene2d::Actor>& Scene2d::GetActors()
     return m_actors;
 }
 
-fVec2 Scene2d::Camera::sstransform(const Vec2 &pixCoord)
+Vec2 Scene2d::Camera::sstransform(const uVec2 &pixCoord, const uVec2 &screenSize)
 {
-    fVec2 result = (center-pixCoord)/zoom + fVec2{0.5, 0.5};
-
-    if (result.x < 0 || result.x >= 1 || result.y < 0 || result.y >= 1)
-    {
-        return fVec2{-1, -1};
-    }
-
-    return result;
+    return Vec2{ll_t(pixCoord.x - ll_t(screenSize.x / 2)), ll_t(ll_t(screenSize.y / 2) - pixCoord.y)} / zoom + center;
 }

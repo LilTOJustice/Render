@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "linalg.h"
 
 class Solid
@@ -10,9 +12,8 @@ class Solid
 class Sprite
 {
     public:
-        Sprite(ull_t width, ull_t height)
-            : m_width{width}, m_height{height}, m_pPixMap{new RGBA[height*width]}
-        {}
+        Sprite(ull_t width, ull_t height);
+        Sprite(const std::string filename);
 
         ull_t GetWidth();
         ull_t GetHeight();

@@ -31,6 +31,7 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
     auto output = make_shared<Frame>(m_xRes, m_yRes);
     auto& scene = *m_spScene;
     auto& camera = scene.GetCamera();
+    camera.zoom = 1;
 
     if (verbose)
     {
@@ -38,41 +39,27 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
     }
 
     auto start = chrono::high_resolution_clock::now();
-    for (const auto &actor : scene.GetActors())
+    for (ull_t i = 0; i < m_yRes; i++)
     {
-        cout << "Pos: (" << actor.pos.x << ", " << actor.pos.y << ")\n";
-        cout << "Center: (" << camera.center.x << ", " << camera.center.y << ")\n";
-        camera.zoom = 1;
-        cout << "Zoom: " << camera.zoom << "\n";
-
-        auto spSprite = actor.m_spSprite;
-        //auto* pixMap = spSprite->GetPixMap();
-        ull_t width = spSprite->GetWidth(), height = spSprite->GetHeight();
-        ull_t tWidth = width*camera.zoom, tHeight = height*camera.zoom;
-
-        for (ull_t i = 0; i < tHeight; i++)
+        for (ull_t j = 0; j < m_xRes; j++)
         {
-            for (ull_t j = 0; j < tWidth; j++)
+            size_t arrayLoc = i*output->GetWidth() + j;
+            (*output.get())[arrayLoc] = RGB{0, 0, 0}; // TODO: Define some variable for default color
+            Vec2 worldCoord = camera.sstransform(uVec2{j, i}, uVec2{m_xRes, m_yRes});
+
+            for (const auto &actor : scene.GetActors())
             {
-                fVec2 transformed = camera.sstransform(
-                    Vec2{
-                        actor.pos.x+(ll_t)j-(ll_t)tWidth/2,
-                        actor.pos.y+(ll_t)i-(ll_t)tHeight/2
-                    }
-                );
+                Vec2 bottomRight = actor.pos + Vec2{ll_t(actor.size.x / 2), -ll_t(actor.size.y / 2)};
+                Vec2 topLeft = actor.pos + Vec2{-ll_t(actor.size.x / 2), ll_t(actor.size.y / 2)};
 
-                if (transformed.x == -1 || transformed.y == -1)
+                if (worldCoord.x <= bottomRight.x && worldCoord.x >= topLeft.x && worldCoord.y >= bottomRight.y && worldCoord.y <= topLeft.y)
                 {
-                    continue;
+                    auto spSprite = actor.m_spSprite;
+                    auto* pixMap = spSprite->GetPixMap();
+                    uVec2 pixMapInd = ((worldCoord - topLeft) / (bottomRight - topLeft)) * uVec2{spSprite->GetWidth() - 1, spSprite->GetHeight() - 1};
+                    RGB color = pixMap[pixMapInd.y * spSprite->GetWidth() + pixMapInd.x].rgb;
+                    (*output.get())[arrayLoc] = color;
                 }
-
-                cout << "Transformed: (" << transformed.x << ", " << transformed.y << ")\n";
-
-                transformed.x *= output->GetWidth();
-                transformed.y *= output->GetHeight();
-
-                RGBRef color = (*output.get())[transformed.y*output->GetWidth() + transformed.x];
-                color = RGB(255, 255, 255);
             }
         }
     }
@@ -80,11 +67,8 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
     if (verbose)
     {
         cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
-    }
 
-    // Final screen-space shader pass
-    if (verbose)
-    {
+        // Final screen-space shader pass
         cout << "\nBeginning screen-space shader pass...\n";
         start = chrono::high_resolution_clock::now();
     }
@@ -152,7 +136,7 @@ void printBar(ull_t frameIndex, ull_t numFrames, ull_t totalBars)
         cout << ' ';
     }
 
-    cout << "] " << frameIndex << '/' << numFrames << " (" << fixed << 100.*frameIndex/numFrames << ")% " << loadSeq[(loadSeqInd++) % loadSeq.size()];
+    cout << "] " << frameIndex << '/' << numFrames << " (" << fixed << 100.*frameIndex/numFrames << ")% " << (frameIndex == numFrames ? ' ' : loadSeq[(loadSeqInd++) % loadSeq.size()]);
     cout.flush();
 }
 

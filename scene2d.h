@@ -18,7 +18,7 @@ class Scene2d
 
     struct Camera
     {
-        fVec2 sstransform(const Vec2 &pixCoord);
+        Vec2 sstransform(const uVec2 &pixCoord, const uVec2 &screenSize);
 
         Vec2 center;
         ld_t zoom;
@@ -28,7 +28,7 @@ class Scene2d
     public:
     Scene2d(unsigned int framerate = 0, ld_t duration = 0);
 
-    void AddActor(std::shared_ptr<Sprite> spSprite, Vec2 pos, uVec2 size = {}, ld_t rot = {}, Vec2 vel = {});
+    void AddActor(std::shared_ptr<Sprite> spSprite, Vec2 pos = {}, uVec2 size = {}, ld_t rot = {}, Vec2 vel = {});
 
     ull_t GetFps() const;
 

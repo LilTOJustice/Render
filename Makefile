@@ -25,4 +25,4 @@ shapes.o: shapes.cpp shapes.h linalg.h
 	g++ -c shapes.cpp $(FLAGS)
 
 clean:
-	rm *.o *.out *.mp4 *.png
+	rm *.o *.out
