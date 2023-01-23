@@ -1,11 +1,13 @@
 #include "render.h"
 
 #include <atomic>
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <queue>
 #include <stdexcept>
-#include <thread>
+
+#define NUMBARS 50
 
 using namespace std;
 
@@ -119,53 +121,6 @@ struct jobinfo
     ull_t frameIndex;
 };
 
-class WorkerThread
-{
-    static void Work(queue<jobinfo> *jobQueue, shared_ptr<Movie> spMovie, Render2d *pRenderer, atomic_ullong *aFramesComplete)
-    {
-        while(!jobQueue->empty())
-        {
-            const jobinfo &ji = jobQueue->front();
-            spMovie->WriteFrame(pRenderer->Render(ji.time, false), ji.frameIndex);
-            (*aFramesComplete)++;
-            
-            if (*aFramesComplete % 5 == 0 || *aFramesComplete == spMovie->GetNumFrames())
-            {
-                cout << 100.*(*aFramesComplete)/spMovie->GetNumFrames() << "%\n";
-            }
-
-            jobQueue->pop();
-        }
-    }
-
-    public:
-    void QueueJob(ld_t time, ull_t frameIndex)
-    {
-        m_jobQueue.push({time, frameIndex});
-    }
-    
-    WorkerThread(shared_ptr<Movie> spMovie, Render2d *pRenderer, atomic_ullong &aFramesComplete)
-        : m_spMovie{spMovie}, m_pRenderer{pRenderer}, m_aFramesComplete{aFramesComplete}
-    {}
-
-    void Start()
-    {
-        m_spThread = make_shared<thread>(Work, &m_jobQueue, m_spMovie, m_pRenderer, &m_aFramesComplete);
-    }
-
-    void Join()
-    {
-        m_spThread->join();
-    }
-    
-    private:
-    shared_ptr<thread> m_spThread;
-    shared_ptr<Movie> m_spMovie;
-    queue<jobinfo> m_jobQueue;
-    Render2d *m_pRenderer;
-    atomic_ullong &m_aFramesComplete;
-};
-
 shared_ptr<Scene2d> Render2d::GetScene()
 {
     return m_spScene;
@@ -177,11 +132,25 @@ void ThreadRender(Render2d *_this, shared_ptr<Movie> spMovie, atomic_ullong *aFr
     for (ull_t frameInd = (*aFrameIndex)++; frameInd < numFrames; frameInd = (*aFrameIndex)++)
     {
         spMovie->WriteFrame(_this->Render(_this->GetScene()->GetTimeSeq()[frameInd], false), frameInd);
-        if (frameInd % 5 == 0 || frameInd == numFrames)
-        {
-            cout << 100.*frameInd/spMovie->GetNumFrames() << "%\n";
-        }
     }
+}
+
+void printBar(ull_t frameIndex, ull_t numFrames, ull_t totalBars)
+{
+    ull_t numBars = 1.*frameIndex/numFrames*totalBars;
+
+    cout << "\r[";
+    for (ull_t i = 0; i < numBars; i++)
+    {
+        cout << '|';
+    }
+
+    for (ull_t i = 0; i < totalBars-numBars; i++)
+    {
+        cout << ' ';
+    }
+    cout << "] " << frameIndex << '/' << numFrames << " (" << fixed << 100.*frameIndex/numFrames << ")%";
+    cout.flush();
 }
 
 shared_ptr<Movie> Render2d::RenderAll()
@@ -192,9 +161,10 @@ shared_ptr<Movie> Render2d::RenderAll()
     }
 
     auto spMovie = make_shared<Movie>(m_xRes, m_yRes, m_spScene->GetFps(), m_spScene->GetTimeSeq().size());
+    ull_t numFrames = spMovie->GetNumFrames();
     cout << "\nBeginning render " << '(' << m_numThreads << " thread" << (m_numThreads > 1 ? "s" : "") << "): "
         << spMovie->GetWidth() << 'x' << spMovie->GetHeight() << " @ " << spMovie->GetFps() << " -> "
-        << spMovie->GetNumFrames() << " frames (" << spMovie->GetDuration() << "s)\n";
+        << numFrames << " frames (" << spMovie->GetDuration() << "s)\n";
 
     auto start = chrono::high_resolution_clock::now();
     atomic_ullong aFrameIndex(0);
@@ -206,16 +176,26 @@ shared_ptr<Movie> Render2d::RenderAll()
     }
 
     // Wait for completion
+    cout << '\n';
+
+    while (aFrameIndex < numFrames)
+    {
+        printBar(aFrameIndex, numFrames, NUMBARS);
+        this_thread::sleep_for(chrono::milliseconds(300));
+    }
+
     for (auto &rt : renderThreads)
     {
         rt.join();
     }
 
-    cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
+    printBar(numFrames, numFrames, NUMBARS);
+
+    cout << "\nDone! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
     return spMovie;
 }
 
-void Render2d::QueueShader(const FragShader& shader)
+void Render2d::QueueShader(const FragShader &shader)
 {
     m_shaderQueue.push_back(shader);
 }

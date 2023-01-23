@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include <thread>
 
 #include "frame.h"
 #include "scene2d.h"
@@ -14,7 +15,7 @@ class Render2d
     Render2d& operator=(const Render2d &) = delete;
 
     public:
-    Render2d(ull_t xRes, ull_t yRes, std::shared_ptr<Scene2d> spScene, ull_t numThreads = 1);
+    Render2d(ull_t xRes, ull_t yRes, std::shared_ptr<Scene2d> spScene, ull_t numThreads = std::thread::hardware_concurrency());
 
     std::shared_ptr<Frame> Render(ld_t time = 0, bool verbose = true);
     std::shared_ptr<Movie> RenderAll();
