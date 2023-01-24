@@ -46,7 +46,7 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
         {
             size_t arrayLoc = i*output->GetWidth() + j;
             (*output.get())[arrayLoc] = scene.GetBgColor();
-            Vec2 worldCoord = camera.sstransform(uVec2{j, i}, screenRes).Rot();
+            Vec2 worldCoord = camera.sstransform(uVec2{j, i}, screenRes);
 
             for (const auto &actor : scene.GetActors())
             {
