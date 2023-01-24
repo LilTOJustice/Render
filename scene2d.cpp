@@ -60,5 +60,5 @@ RGB Scene2d::GetBgColor()
 
 Vec2 Scene2d::Camera::sstransform(const uVec2 &pixCoord, const uVec2 &screenSize)
 {
-    return Vec2{ll_t(pixCoord.x - ll_t(screenSize.x / 2)), ll_t(ll_t(screenSize.y / 2) - pixCoord.y)} / zoom + center;
+    return (Vec2{ll_t(pixCoord.x - ll_t(screenSize.x / 2)), ll_t(ll_t(screenSize.y / 2) - pixCoord.y)} / zoom + center).Rot(rot);
 }

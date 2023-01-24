@@ -83,6 +83,11 @@ struct T_Vec2
     {
         return (*this)/Mag();
     }
+
+    T_Vec2<ld_t> Rot(ld_t radians)
+    {
+        return T_Vec2<ld_t>{x * cos(radians) - y * sin(radians), x * sin(radians) + y * cos(radians)};
+    }
 };
 
 template<typename T>

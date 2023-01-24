@@ -46,7 +46,7 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
         {
             size_t arrayLoc = i*output->GetWidth() + j;
             (*output.get())[arrayLoc] = scene.GetBgColor();
-            Vec2 worldCoord = camera.sstransform(uVec2{j, i}, screenRes); 
+            Vec2 worldCoord = camera.sstransform(uVec2{j, i}, screenRes).Rot();
 
             for (const auto &actor : scene.GetActors())
             {
@@ -99,7 +99,8 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
 
     if (verbose)
     {
-        cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
+        cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count()
+            << "s)\n\nRender complete.\n";
     }
 
     return output;
@@ -136,7 +137,7 @@ void PrintBar(ull_t frameIndex, ull_t numFrames, ull_t totalBars)
     }
 
     cout << "] " << frameIndex << '/' << numFrames 
-         << " (" << fixed << setprecision(3) << 100.*frameIndex/numFrames << ")% "
+         << " (" << fixed << setprecision(3) << 100.*frameIndex/numFrames << "%) "
          << (frameIndex == numFrames ? ' ' : loadSeq[(loadSeqInd++) % loadSeq.size()]);
     cout.flush();
 }
@@ -182,7 +183,9 @@ shared_ptr<Movie> Render2d::RenderAll()
 
     PrintBar(numFrames, numFrames, NUMBARS);
 
-    cout << "\nDone! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
+    cout << "\nDone! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count()
+        << "s)\n\nRender complete.\n";
+
     return spMovie;
 }
 
