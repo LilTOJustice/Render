@@ -17,12 +17,12 @@ class Sprite
         Sprite(ull_t width, ull_t height);
         Sprite(const std::string filename);
 
-        ull_t GetWidth();
-        ull_t GetHeight();
-        const RGBA* GetPixMap();
-        std::vector<FragShader>& GetShaderQueue();
-
-        void QueueShader(const FragShader &fragShader);
+        ull_t getWidth();
+        ull_t getHeight();
+        const RGBA* getPixMap();
+        const std::vector<FragShader>& getShaderQueue();
+        void queueShader(const FragShader &fragShader);
+        void clearShaders();
 
         ~Sprite();
 

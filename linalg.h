@@ -2,12 +2,6 @@
 
 #include <cmath>
 
-// Types
-typedef unsigned long long ull_t;
-typedef long long ll_t;
-typedef long double ld_t;
-typedef unsigned char byte_t;
-
 // Forward declared structs
 template<typename T>
 struct T_Vec2;
@@ -18,7 +12,13 @@ struct T_Vec3;
 template<typename T>
 struct T_Vec4;
 
-// Math
+// Types
+typedef unsigned long long ull_t;
+typedef long long ll_t;
+typedef long double ld_t;
+typedef unsigned char byte_t;
+
+// Math types
 typedef T_Vec2<ll_t> Vec2;
 typedef T_Vec3<ll_t> Vec3;
 typedef T_Vec4<ll_t> Vec4;
@@ -30,7 +30,7 @@ typedef T_Vec3<ull_t> uVec3;
 typedef T_Vec4<ull_t> uVec4;
 typedef T_Vec3<ld_t> Rot;
 
-// Color
+// Color types
 typedef T_Vec3<byte_t> RGB;
 typedef T_Vec4<byte_t> RGBA;
 typedef T_Vec3<byte_t&> RGBRef;
@@ -38,8 +38,9 @@ typedef T_Vec4<byte_t&> RGBARef;
 typedef T_Vec3<ld_t> HSV;
 
 template<typename T>
-struct T_Vec2
+class T_Vec2
 {
+    public:
     T x, y;
 
     T_Vec2()
@@ -133,13 +134,14 @@ struct T_Vec2
 };
 
 template<typename T>
-struct T_Vec3
+class T_Vec3
 {
+    public:
     T x, y, z;
     T &r, &g, &b;
     T &h, &s, &v;
     T_Vec2<T&> xy, xz, yz;
-    
+
     T_Vec3()
         : x{}, y{}, z{}
         , r{x}, g{y}, b{z}
@@ -248,8 +250,9 @@ struct T_Vec3
 };
 
 template<typename T>
-struct T_Vec4
+class T_Vec4
 {
+    public:
     T x, y, z, w;
     T &r, &g, &b, &a;
     T_Vec2<T&> xy, xz, xw, yz, yw, zw;
@@ -270,7 +273,7 @@ struct T_Vec4
         , yzw{T_Vec3<T&>{y, z, w}}
         , rgb{T_Vec3<T&>{x, y, z}}
     {}
-    
+
     T_Vec4(const T &_x, const T &_y, const T &_z, const T &_w)
         : x{_x}, y{_y}, z{_z},  w{_w}
         , r{x}, g{y}, b{z}, a{w}
@@ -309,7 +312,7 @@ struct T_Vec4
         , yzw{T_Vec3<O&>{y, z, w}}
         , rgb{T_Vec3<O&>{x, y, z}}
     {}
-    
+ 
     T_Vec4(const T_Vec3<T> &other, const T &_w)
         : x{T(other.x)}
         , y{T(other.y)}
@@ -423,7 +426,7 @@ T min(T first, T second)
     return (first < second ? first : second);
 }
 
-const ld_t DEGPERPI = 180/3.14159265;
+const ld_t DEGPERPI = 180 / 3.14159265;
 HSV ToHSV(const RGB &rgb);
 RGB ToRGB(const HSV &hsv);
 RGBA AlphaBlend(const RGBA &front, const RGBA &back);

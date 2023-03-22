@@ -6,6 +6,8 @@ Smart Pointers: spvarName
 Classes: ClassName
 Template classes: ClassName
 Tempate classes designed to be typedef'd out: T_ClassName
+Typedef'd classes: TypeName with optional lowercase prefix to denote template
+Other typedefs (e.g. primitive typedefs): typename_t
 Class members: m_memName (also adopt pointer/smart pointer conventions)
 Struct “members”: memName (again, adopt pointer/smart pointer conventions)
 Macros: MACRONAME (same for parameterized/etc.)

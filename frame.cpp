@@ -13,7 +13,7 @@ Frame::Frame(ull_t width, ull_t height)
     m_aspectRatio{(ld_t)width/(ld_t)height}, m_pImage{new byte_t[m_size]}
 {}
 
-void Frame::Output(string filename) const
+void Frame::output(string filename) const
 {
     string fullname = filename + ".png";
     cout << "\nExporting frame as image: " << fullname << "...\n";
@@ -33,17 +33,17 @@ RGBARef Frame::operator[](ull_t index)
     };
 }
 
-ull_t Frame::GetHeight() const
+ull_t Frame::getHeight() const
 {
     return m_height;
 }
 
-ull_t Frame::GetWidth() const
+ull_t Frame::getWidth() const
 {
     return m_width;
 }
 
-ld_t Frame::GetAspect() const
+ld_t Frame::getAspect() const
 {
     return m_aspectRatio;
 }
@@ -63,7 +63,7 @@ Movie::Movie(ull_t width, ull_t height, ull_t fps, ull_t numFrames)
     filesystem::create_directory(m_tempDir);
 }
 
-void Movie::Output(string filename) const
+void Movie::output(string filename) const
 {
     string fullname = filename + ".mp4";
     cout << "\nExporting movie: " << fullname << "...\n";
@@ -83,7 +83,7 @@ void Movie::Output(string filename) const
     cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
 }
 
-void Movie::WriteFrame(shared_ptr<Frame> spFrame, ull_t frameIndex)
+void Movie::writeFrame(shared_ptr<Frame> spFrame, ull_t frameIndex)
 {
     if (frameIndex >= m_numFrames)
     {
@@ -94,32 +94,32 @@ void Movie::WriteFrame(shared_ptr<Frame> spFrame, ull_t frameIndex)
     CImg<byte_t>(spFrame->m_pImage, m_width, m_height, 1, 3).save_png(filename.c_str());
 }
 
-ull_t Movie::GetHeight() const
+ull_t Movie::getHeight() const
 {
     return m_height;
 }
 
-ull_t Movie::GetWidth() const
+ull_t Movie::getWidth() const
 {
     return m_width;
 }
 
-ull_t Movie::GetFps() const
+ull_t Movie::getFps() const
 {
     return m_fps;
 }
 
-ull_t Movie::GetNumFrames() const
+ull_t Movie::getNumFrames() const
 {
     return m_numFrames;
 }
 
-ld_t Movie::GetAspect() const
+ld_t Movie::getAspect() const
 {
     return m_aspectRatio;
 }
 
-ld_t Movie::GetDuration() const
+ld_t Movie::getDuration() const
 {
     return m_duration;
 }

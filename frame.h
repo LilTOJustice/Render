@@ -14,15 +14,15 @@ class Frame
     public:
     Frame(ull_t width, ull_t height);
 
-    void Output(std::string filename) const;
+    void output(std::string filename) const;
 
     RGBARef operator[](ull_t index);
 
-    ull_t GetWidth() const;
+    ull_t getWidth() const;
 
-    ull_t GetHeight() const;
+    ull_t getHeight() const;
 
-    ld_t GetAspect() const;
+    ld_t getAspect() const;
 
     ~Frame();
 
@@ -39,21 +39,21 @@ class Movie
     public:
     Movie(ull_t width, ull_t height, ull_t fps, ull_t numFrames);
 
-    void Output(std::string filename) const;
+    void output(std::string filename) const;
 
-    void WriteFrame(std::shared_ptr<Frame> spFrame, ull_t frameIndex);
+    void writeFrame(std::shared_ptr<Frame> spFrame, ull_t frameIndex);
 
-    ull_t GetWidth() const;
+    ull_t getWidth() const;
 
-    ull_t GetHeight() const;
+    ull_t getHeight() const;
 
-    ull_t GetFps() const;
+    ull_t getFps() const;
 
-    ull_t GetNumFrames() const;
+    ull_t getNumFrames() const;
 
-    ld_t GetAspect() const;
+    ld_t getAspect() const;
 
-    ld_t GetDuration() const;
+    ld_t getDuration() const;
 
     ~Movie();
 
