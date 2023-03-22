@@ -19,7 +19,7 @@ class Sprite
 
         ull_t GetWidth();
         ull_t GetHeight();
-        RGBA* GetPixMap();
+        const RGBA* GetPixMap();
         std::vector<FragShader>& GetShaderQueue();
 
         void QueueShader(const FragShader &fragShader);

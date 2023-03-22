@@ -16,7 +16,7 @@ class Frame
 
     void Output(std::string filename) const;
 
-    RGBRef operator[](ull_t index);
+    RGBARef operator[](ull_t index);
 
     ull_t GetWidth() const;
 

@@ -9,7 +9,7 @@ using namespace cimg_library;
 
 // Frame
 Frame::Frame(ull_t width, ull_t height)
-    : m_width{width}, m_height{height}, m_colorStride{width*height}, m_size{m_colorStride*3},
+    : m_width{width}, m_height{height}, m_colorStride{width*height}, m_size{m_colorStride * 4},
     m_aspectRatio{(ld_t)width/(ld_t)height}, m_pImage{new byte_t[m_size]}
 {}
 
@@ -23,12 +23,13 @@ void Frame::Output(string filename) const
     cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
 }
 
-RGBRef Frame::operator[](ull_t index)
+RGBARef Frame::operator[](ull_t index)
 {
-    return RGBRef{
-        m_pImage[index], // r
-        m_pImage[index + m_colorStride], // g
-        m_pImage[index + m_colorStride + m_colorStride] // b
+    return RGBARef{
+        m_pImage[index],                                                // r
+        m_pImage[index + m_colorStride],                                // g
+        m_pImage[index + m_colorStride + m_colorStride],                // b
+        m_pImage[index + m_colorStride + m_colorStride + m_colorStride] // a
     };
 }
 
@@ -56,7 +57,7 @@ Frame::~Frame()
 ull_t Movie::m_nextId = 0;
 Movie::Movie(ull_t width, ull_t height, ull_t fps, ull_t numFrames)
     : m_width{width}, m_height{height}, m_fps{fps}, m_numFrames{numFrames}, m_movieId{m_nextId++}, m_colorStride{width*height},
-    m_imgSize{m_colorStride*3}, m_aspectRatio{(ld_t)width/(ld_t)height}, m_duration{(ld_t)(numFrames)/fps},
+    m_imgSize{m_colorStride * 4}, m_aspectRatio{(ld_t)width/(ld_t)height}, m_duration{(ld_t)(numFrames)/fps},
     m_tempDir{"temp" + to_string(m_movieId)}
 {
     filesystem::create_directory(m_tempDir);

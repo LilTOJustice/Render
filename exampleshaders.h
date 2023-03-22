@@ -63,5 +63,5 @@ Frag
 FragShader rainbow =
 Frag
 {
-    out = in * (ToRGB(HSV(fmod(180*time, 360), 1, 1))/255.);
+    out = in * fVec4(ToRGB(HSV(fmod(180*time, 360), 1, 1))/255., 255.);
 };

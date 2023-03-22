@@ -45,7 +45,10 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
         for (ull_t j = 0; j < m_xRes; j++)
         {
             size_t arrayLoc = i*output->GetWidth() + j;
-            (*output.get())[arrayLoc] = scene.GetBgColor();
+            RGBA bgColor{0, 0, 0, 255};
+            bgColor.rgb = scene.GetBgColor();
+            (*output.get())[arrayLoc] = bgColor;
+
             Vec2 worldCoord = camera.sstransform(uVec2{j, i}, screenRes);
 
             for (const auto &actor : scene.GetActors())
@@ -63,14 +66,14 @@ shared_ptr<Frame> Render2d::Render(ld_t time, bool verbose)
                     uVec2 pixMapSize{spSprite->GetWidth(), spSprite->GetHeight()};
 
                     uVec2 pixMapInd = ((worldCoord - topLeft) / (bottomRight - topLeft)) * uVec2{spSprite->GetWidth() - 1, spSprite->GetHeight() - 1};
-                    RGB color = pixMap[pixMapInd.y * spSprite->GetWidth() + pixMapInd.x].rgb;
+                    RGBA color = pixMap[pixMapInd.y * spSprite->GetWidth() + pixMapInd.x];
 
                     for (const FragShader &fs : spSprite->GetShaderQueue())
                     {
                         fs(color, color, uVec2{pixMapInd.x, (spSprite->GetHeight() - 1) - pixMapInd.y}, pixMapSize, time);
                     }
 
-                    (*output.get())[arrayLoc] = color;
+                    (*output.get())[arrayLoc] = AlphaBlend(color, (*output.get())[arrayLoc]);
                 }
             }
         }

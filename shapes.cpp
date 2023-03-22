@@ -1,7 +1,10 @@
 #include "shapes.h"
 
 #define cimg_display 0
+#define cimg_use_png
 #include "CImg.h"
+
+#include <iostream>
 
 using namespace std;
 using namespace cimg_library;
@@ -20,7 +23,7 @@ Sprite::Sprite(const string filename)
     ull_t imgSize = m_width * m_height;
     ull_t spectrum = img.spectrum();
     m_pPixMap = new RGBA[m_width * m_height];
-    
+
     switch(spectrum)
     {
         case 1:
@@ -75,7 +78,7 @@ ull_t Sprite::GetHeight()
     return m_height;
 }
 
-RGBA* Sprite::GetPixMap()
+const RGBA* Sprite::GetPixMap()
 {
     return m_pPixMap;
 }
