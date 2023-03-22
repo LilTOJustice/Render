@@ -19,7 +19,7 @@ Scene2d::Scene2d(const RGB &bgColor)
     : m_camera{Vec2{0, 0}, 1, 0}, m_bgColor{bgColor}
 {}
 
-void Scene2d::AddActor(shared_ptr<Sprite> spSprite, Vec2 pos, uVec2 size, ld_t rot, Vec2 vel)
+void Scene2d::AddActor(shared_ptr<Sprite> spSprite, Vec2 pos, uVec2 size, ld_t rot)
 {
     if (size == uVec2{0, 0})
     {
@@ -28,7 +28,7 @@ void Scene2d::AddActor(shared_ptr<Sprite> spSprite, Vec2 pos, uVec2 size, ld_t r
 
     m_actors.push_back(
         Actor{
-            spSprite, pos, size, rot, vel
+            spSprite, pos, size, rot
         }
     );
 }

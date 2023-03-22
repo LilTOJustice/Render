@@ -7,15 +7,6 @@
 
 class Scene2d
 {
-    struct Actor
-    {
-        std::shared_ptr<Sprite> m_spSprite;
-        Vec2 pos;
-        uVec2 size;
-        ld_t rot;
-        Vec2 vel;
-    };
-
     struct Camera
     {
         Vec2 sstransform(const uVec2 &pixCoord, const uVec2 &screenSize);
@@ -26,10 +17,18 @@ class Scene2d
     };
 
     public:
+    struct Actor
+    {
+        std::shared_ptr<Sprite> m_spSprite;
+        Vec2 pos;
+        uVec2 size;
+        ld_t rot;
+    };
+
     Scene2d(unsigned int framerate, ld_t duration, const RGB &bgColor = RGB{0, 0, 0}); // For Movie rendering or single-frame rendering
     Scene2d(const RGB &bgColor = RGB{0, 0, 0}); // For single-frame rendering
 
-    void AddActor(std::shared_ptr<Sprite> spSprite, Vec2 pos = {}, uVec2 size = {}, ld_t rot = {}, Vec2 vel = {});
+    void AddActor(std::shared_ptr<Sprite> spSprite, Vec2 pos = {}, uVec2 size = {}, ld_t rot = {});
 
     ull_t GetFps() const;
 

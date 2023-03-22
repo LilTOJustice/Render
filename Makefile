@@ -3,6 +3,9 @@ FLAGS=-O3 -std=c++17
 a.out: main.o frame.o linalg.o render.o scene2d.o scene3d.o shapes.o
 	g++ main.o frame.o linalg.o render.o scene2d.o scene3d.o shapes.o $(FLAGS) -pthread -lpng
 
+lib: frame.o linalg.o render.o scene2d.o scene3d.o shapes.o
+	ar rvs render.a frame.o linalg.o render.o scene2d.o scene3d.o shapes.o
+
 main.o: main.cpp render.h shader.h scene2d.h scene3d.h linalg.h shapes.h frame.h exampleshaders.h
 	g++ -c main.cpp $(FLAGS)
 
