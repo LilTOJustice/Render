@@ -4,6 +4,8 @@ Functions: funcName
 Pointers: pvarName
 Smart Pointers: spvarName
 Classes: ClassName
+Template classes: ClassName
+Tempate classes designed to be typedef'd out: T_ClassName
 Class members: m_memName (also adopt pointer/smart pointer conventions)
 Struct “members”: memName (again, adopt pointer/smart pointer conventions)
 Macros: MACRONAME (same for parameterized/etc.)
