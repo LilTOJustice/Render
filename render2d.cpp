@@ -89,7 +89,7 @@ shared_ptr<Frame> Render2d::render(ld_t time, bool verbose)
     }
 
 
-    for (const FragShader &fs : m_shaderQueue)
+    for (const FragShader &fs : scene.getShaderQueue())
     {
         for (size_t i = 0; i < output->getHeight(); i++)
         {
@@ -195,10 +195,6 @@ shared_ptr<Movie> Render2d::renderAll()
     return spMovie;
 }
 
-void Render2d::queueShader(const FragShader &shader)
-{
-    m_shaderQueue.push_back(shader);
-}
 
 void Render2d::setNumThreads(ull_t numThreads)
 {

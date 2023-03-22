@@ -52,6 +52,7 @@ const Scene2d::Camera& Scene2d::getCamera() const
 Scene2d::Camera::Camera(const Vec2 &center, ld_t zoom, ld_t rot)
     : m_center{center}, m_zoom{zoom}, m_rot{rot}
 {}
+
 void Scene2d::Camera::setCenter(const Vec2 &center)
 {
     m_center = center;
@@ -139,6 +140,21 @@ const vector<Scene2d::Actor>& Scene2d::getActors() const
 RGB Scene2d::getBgColor() const
 {
     return m_bgColor;
+}
+
+const vector<FragShader>& Scene2d::getShaderQueue() const
+{
+    return m_shaderQueue;
+}
+
+void Scene2d::queueShader(const FragShader &shader)
+{
+    m_shaderQueue.push_back(shader);
+}
+
+void Scene2d::clearShaders()
+{
+    m_shaderQueue.clear();
 }
 
 Vec2 Scene2d::ssTransform(const uVec2 &screenSize, const uVec2 &pixCoord) const

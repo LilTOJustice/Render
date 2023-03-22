@@ -19,13 +19,10 @@ class Render2d
     std::shared_ptr<Frame> render(ld_t time = 0, bool verbose = true);
     std::shared_ptr<Movie> renderAll();
     std::shared_ptr<Scene2d> getScene();
-    void queueShader(const FragShader &shader);
-    void clearShaders();
     void setNumThreads(ull_t numThreads);
 
     private:
     ull_t m_xRes, m_yRes;
     std::shared_ptr<Scene2d> m_spScene;
-    std::vector<FragShader> m_shaderQueue; // Functions like a queue
     ull_t m_numThreads;
 };

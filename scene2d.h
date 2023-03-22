@@ -50,7 +50,7 @@ class Scene2d
         ld_t m_rot;
     };
 
-    Scene2d(unsigned int framerate, ld_t duration, const RGB &bgColor = RGB{0, 0, 0}); // For Movie rendering or single-frame rendering
+    Scene2d(ull_t framerate, ld_t duration, const RGB &bgColor = RGB{0, 0, 0}); // For Movie rendering or single-frame rendering
     Scene2d(const RGB &bgColor = RGB{0, 0, 0}); // For single-frame rendering
 
     void addActor(const Actor &actor);
@@ -67,6 +67,12 @@ class Scene2d
 
     RGB getBgColor() const;
 
+    const std::vector<FragShader>& getShaderQueue() const;
+
+    void queueShader(const FragShader &shader);
+
+    void clearShaders();
+
     Vec2 ssTransform(const uVec2 &screenSize, const uVec2 &pixCoord) const;
 
     private:
@@ -75,4 +81,5 @@ class Scene2d
     std::vector<ld_t> m_timeSeq;
     std::vector<Actor> m_actors;
     RGB m_bgColor;
+    std::vector<FragShader> m_shaderQueue; // Functions like a queue
 };
