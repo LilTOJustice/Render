@@ -1,4 +1,4 @@
-FLAGS=-O3 -std=c++17
+FLAGS=-std=c++17 -O3
 DEBUGFLAGS=#-fsanitize=address -g
 
 build: main.o frame.o linalg.o render2d.o scene2d.o shapes.o

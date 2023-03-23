@@ -15,6 +15,6 @@ typedef std::function<void(FRAGPARAMLIST)> FragShader;
 FragShader Test =
 Frag() // In between (), put variables in the definition scope that are to be captured,
 {      // similar to uniforms in GLSL
-    out = RGB{0, 0, 0};
+    out = RGBA{0, 0, 0, 0};
 };
 */

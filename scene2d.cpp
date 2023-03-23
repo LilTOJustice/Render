@@ -35,11 +35,18 @@ void Scene2d::addActor(const std::vector<std::shared_ptr<Actor>> &spActors)
     }
 }
 
-std::shared_ptr<Scene2d::Actor> Scene2d::addActor(const shared_ptr<Sprite> &spSprite, const Vec2 &pos, const uVec2 &size, ld_t rot)
+shared_ptr<Scene2d::Actor> Scene2d::addActor(const shared_ptr<Sprite> &spSprite, const Vec2 &pos, const uVec2 &size, ld_t rot)
 {
     auto spActor = make_shared<Actor>(spSprite, pos, size, rot);
     m_actors.insert(spActor);
     return spActor;
+}
+
+shared_ptr<Scene2d::Line> Scene2d::addLine(const Vec2 &start, const Vec2 &end, const RGBA &color, ull_t thickness)
+{
+    auto spLine = make_shared<Line>(start, end, color, thickness);
+    m_actors.insert(spLine);
+    return spLine;
 }
 
 bool Scene2d::removeActor(const std::shared_ptr<Actor> &spActor)
@@ -221,4 +228,49 @@ const uVec2& Scene2d::Actor::getSize() const
 ld_t Scene2d::Actor::getRot() const
 {
     return m_rot;
+}
+
+// Scene2d::Line
+Scene2d::Line::Line(const Vec2 &start, const Vec2 &end, const RGBA &color, ull_t thickness)
+    : Actor(make_shared<Sprite>(uVec2(end - start).x, uVec2(end - start).y, color), Vec2((start + (end - start))/2))
+{
+    m_color = color;
+    m_thickness = thickness;
+    RGBA empty = {0, 0, 0, 0};
+
+    // TODO: Line drawing
+    for (ull_t i = 0; i < m_size.y; i++)
+    {
+        for (ull_t j = 0; j < m_size.x; j++)
+        {
+            if (i < thickness || j < thickness || i > m_size.y - thickness - 1 || j > m_size.x - thickness - 1)
+            {
+                m_spSprite->getPixMap()[i * m_size.x + j] = color;
+            }
+            else
+            {
+                m_spSprite->getPixMap()[i * m_size.x + j] = empty; 
+            }
+        }
+    }
+}
+
+void Scene2d::Line::setColor(const RGBA &color)
+{
+    m_color = color;
+}
+
+void Scene2d::Line::setThickness(ull_t thickness)
+{
+    m_thickness = thickness;
+}
+
+RGBA Scene2d::Line::getColor() const
+{
+    return m_color;
+}
+
+ull_t Scene2d::Line::getThickness() const
+{
+    return m_thickness;
 }

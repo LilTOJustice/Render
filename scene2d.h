@@ -46,11 +46,11 @@ class Scene2d
         Actor(const std::shared_ptr<Sprite> &spSprite = nullptr, Vec2 pos = {}, uVec2 size = {}, ld_t rot = 0);
 
         void setSprite(const std::shared_ptr<Sprite> &spSprite);
-        
+
         void setPos(const Vec2 &pos);
-        
+
         void setSize(const uVec2 &size);
-        
+
         void setRot(ld_t rot);
 
         void translate(const Vec2 &change);
@@ -58,20 +58,49 @@ class Scene2d
         void scale(const fVec2 &scale);
 
         void rotate(ld_t change);
-        
+
         std::shared_ptr<Sprite> getSprite() const;
-        
+
         const Vec2& getPos() const;
-        
+
         const uVec2& getSize() const;
-        
+
         ld_t getRot() const;
 
-        private:
+        protected:
         std::shared_ptr<Sprite> m_spSprite;
         Vec2 m_pos;
         uVec2 m_size;
         ld_t m_rot;
+    };
+
+    class Line : public Actor
+    {
+        public:
+        void setSprite(const std::shared_ptr<Sprite> &spSprite) = delete;
+        void setPos(const Vec2 &pos) = delete;
+        void setSize(const uVec2 &size) = delete;
+        void setRot(ld_t rot) = delete;
+        void translate(const Vec2 &change) = delete;
+        void scale(const fVec2 &scale) = delete;
+        void rotate(ld_t change) = delete;
+        const Vec2& getPos() const = delete;
+        const uVec2& getSize() const = delete;
+        ld_t getRot() const = delete;
+
+        Line(const Vec2 &start, const Vec2 &end, const RGBA &color = RGBA{}, ull_t thickness = 0);
+
+        void setColor(const RGBA &color);
+
+        void setThickness(ull_t thickness);
+
+        RGBA getColor() const;
+
+        ull_t getThickness() const;
+
+        private:
+        RGBA m_color;
+        ull_t m_thickness;
     };
 
     Scene2d(ull_t framerate, ld_t duration, const RGB &bgColor = RGB{0, 0, 0}); // For Movie rendering or single-frame rendering
@@ -81,6 +110,7 @@ class Scene2d
     void addActor(const std::vector<std::shared_ptr<Actor>> &spActor);
 
     std::shared_ptr<Actor> addActor(const std::shared_ptr<Sprite> &spSprite, const Vec2 &pos = {}, const uVec2 &size = {}, ld_t rot = {});
+    std::shared_ptr<Line> addLine(const Vec2 &start, const Vec2 &end, const RGBA &color = RGBA{}, ull_t thickness = 0);
 
     bool removeActor(const std::shared_ptr<Actor> &spActor);
 

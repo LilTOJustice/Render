@@ -57,6 +57,13 @@ class T_Vec2
         , y{T(other.y)}
     {}
 
+    T_Vec2<T>& operator=(const T_Vec2<T> &other)
+    {
+        x = other.x;
+        y = other.y;
+        return *this;
+    }
+
     template<typename O>
     T_Vec2<T>& operator=(const T_Vec2<O> &other)
     {
@@ -209,6 +216,14 @@ class T_Vec3
         , xz{T_Vec2<O&>{x, z}}
         , yz{T_Vec2<O&>{y, z}}
     {}
+
+    T_Vec3<T>& operator=(const T_Vec3<T> &other)
+    {
+        x = other.x;
+        y = other.y;
+        z = other.z;
+        return *this;
+    }
 
     template<typename O>
     T_Vec3<T>& operator=(const T_Vec3<O> &other)
@@ -403,6 +418,15 @@ class T_Vec4
         , rgb{T_Vec3<T&>{x, y, z}}
     {}
 
+    T_Vec4<T>& operator=(const T_Vec4<T> &other)
+    {
+        x = other.x;
+        y = other.y;
+        z = other.z;
+        w = other.w;
+        return *this;
+    }
+
     template<typename O>
     T_Vec4<T>& operator=(const T_Vec4<O> &other)
     {
@@ -425,7 +449,6 @@ class T_Vec4
     {
         x = other.x;
         y = other.y;
-        z = other.z;
         return *this;
     }
 

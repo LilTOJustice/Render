@@ -9,9 +9,18 @@
 using namespace std;
 using namespace cimg_library;
 
-Sprite::Sprite(ull_t width, ull_t height)
+// Sprite
+Sprite::Sprite(ull_t width, ull_t height, const RGBA &color)
     : m_width{width}, m_height{height}, m_pPixMap{new RGBA[width * height]}
-{}
+{
+    for (ull_t i = 0; i < height; i++)
+    {
+        for (ull_t j = 0; j < width; j++)
+        {
+            m_pPixMap[i * width + j] = color;
+        }
+    }
+}
 
 Sprite::Sprite(const string filename)
 {
@@ -32,7 +41,7 @@ Sprite::Sprite(const string filename)
                 m_pPixMap[i].r = img[i];
                 m_pPixMap[i].g = 255;
                 m_pPixMap[i].b = 255;
-                m_pPixMap[i].a = 255;    
+                m_pPixMap[i].a = 255; 
             }
             break;
 
@@ -77,7 +86,12 @@ ull_t Sprite::getHeight()
     return m_height;
 }
 
-const RGBA* Sprite::getPixMap()
+const RGBA* Sprite::getPixMap() const
+{
+    return m_pPixMap;
+}
+
+RGBA* Sprite::getPixMap()
 {
     return m_pPixMap;
 }
@@ -91,6 +105,7 @@ void Sprite::queueShader(const FragShader &fragShader)
 {
     m_shaderQueue.push_back(fragShader);
 }
+
 void Sprite::clearShaders()
 {
     m_shaderQueue.clear();
