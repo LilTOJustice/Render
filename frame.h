@@ -41,7 +41,7 @@ class Movie
 
     void output(std::string filename) const;
 
-    void writeFrame(std::shared_ptr<Frame> spFrame, ull_t frameIndex);
+    void writeFrame(const std::shared_ptr<Frame> &spFrame, ull_t frameIndex);
 
     ull_t getWidth() const;
 

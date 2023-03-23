@@ -13,8 +13,10 @@ using namespace std;
 
 const string loadSeq = "|/-\\";
 
-Render2d::Render2d(ull_t xRes, ull_t yRes, std::shared_ptr<Scene2d> spScene, ull_t numThreads)
-    : m_xRes{xRes}, m_yRes{yRes}, m_spScene{spScene}, m_numThreads{numThreads}
+// Render2d
+Render2d::Render2d(ull_t xRes, ull_t yRes, const shared_ptr<Scene2d> &spScene, ull_t numThreads)
+    : m_xRes{xRes}, m_yRes{yRes}, m_spScene{spScene}, m_numThreads{numThreads},
+    m_sceneThinkFunc{SceneThink(){return;}}
 {
     if (m_spScene == nullptr)
     {
@@ -23,14 +25,18 @@ Render2d::Render2d(ull_t xRes, ull_t yRes, std::shared_ptr<Scene2d> spScene, ull
 
     if (xRes < 1 || yRes < 1)
     {
-         throw std::runtime_error("Invalid image size.");
+         throw runtime_error("Invalid image size.");
     }
 }
 
-shared_ptr<Frame> Render2d::render(ld_t time, bool verbose)
+shared_ptr<Frame> Render2d::render(ld_t time, bool verbose) const
+{
+    return render(*m_spScene, time, verbose);
+}
+
+shared_ptr<Frame> Render2d::render(const Render2d::SceneInstance &scene, ld_t time, bool verbose) const
 {
     auto output = make_shared<Frame>(m_xRes, m_yRes);
-    auto& scene = *m_spScene;
     uVec2 screenRes(m_xRes, m_yRes);
 
     if (verbose)
@@ -44,13 +50,13 @@ shared_ptr<Frame> Render2d::render(ld_t time, bool verbose)
         for (ull_t j = 0; j < m_xRes; j++)
         {
             size_t arrayLoc = i * output->getWidth() + j;
-            RGBA bgColor{0, 0, 0, 255};
-            bgColor.rgb = scene.getBgColor();
+            RGBA bgColor{scene.getBgColor(), 255};
             (*output.get())[arrayLoc] = bgColor;
 
             Vec2 worldCoord = scene.ssTransform(screenRes, uVec2{j, i});
 
-            for (const auto &actor : scene.getActors())
+            // TODO: Implement actor rotation
+            for (const Scene2d::Actor &actor : scene.getActors())
             {
                 Vec2 bottomRight = actor.getPos() + Vec2{ll_t(actor.getSize().x / 2), -ll_t(actor.getSize().y / 2)};
                 Vec2 topLeft = actor.getPos() + Vec2{-ll_t(actor.getSize().x / 2), ll_t(actor.getSize().y / 2)};
@@ -72,7 +78,7 @@ shared_ptr<Frame> Render2d::render(ld_t time, bool verbose)
                         fs(color, color, uVec2{pixMapInd.x, (spSprite->getHeight() - 1) - pixMapInd.y}, pixMapSize, time);
                     }
 
-                    (*output.get())[arrayLoc] = AlphaBlend(color, (*output.get())[arrayLoc]);
+                    (*output)[arrayLoc] = AlphaBlend(color, (*output)[arrayLoc]);
                 }
             }
         }
@@ -95,7 +101,7 @@ shared_ptr<Frame> Render2d::render(ld_t time, bool verbose)
         {
             for (size_t j = 0; j < output->getWidth(); j++)
             {
-                fs((*output.get())[i * output->getWidth() + j], (*output.get())[i * output->getWidth() + j], uVec2{j, (output->getHeight() - 1) - i}, screenRes, time);
+                fs((*output)[i * output->getWidth() + j], (*output)[i * output->getWidth() + j], uVec2{j, (output->getHeight() - 1) - i}, screenRes, time);
             }
         }
     }
@@ -110,17 +116,17 @@ shared_ptr<Frame> Render2d::render(ld_t time, bool verbose)
     return output;
 }
 
-shared_ptr<Scene2d> Render2d::getScene()
+shared_ptr<Scene2d> Render2d::getScene() const
 {
     return m_spScene;
 }
 
-void threadRender(Render2d *_this, shared_ptr<Movie> spMovie, atomic_ullong *aFrameIndex)
+void threadRender(const Render2d &renderer, const vector<Render2d::SceneInstance> &sceneInstances, const shared_ptr<Movie> &spMovie, atomic_ullong &aFrameIndex)
 {
     ull_t numFrames = spMovie->getNumFrames();
-    for (ull_t frameInd = (*aFrameIndex)++; frameInd < numFrames; frameInd = (*aFrameIndex)++)
+    for (ull_t frameInd = aFrameIndex++; frameInd < numFrames; frameInd = aFrameIndex++)
     {
-        spMovie->writeFrame(_this->render(_this->getScene()->getTimeSeq()[frameInd], false), frameInd);
+        spMovie->writeFrame(renderer.render(sceneInstances[frameInd], renderer.getScene()->getTimeSeq()[frameInd], false), frameInd);
     }
 }
 
@@ -146,11 +152,11 @@ void printBar(ull_t frameIndex, ull_t numFrames, ull_t totalBars)
     cout.flush();
 }
 
-shared_ptr<Movie> Render2d::renderAll()
+shared_ptr<Movie> Render2d::renderAll() const
 {
     if (m_spScene->getTimeSeq().empty())
     {
-        throw runtime_error("Movie render attempted on scene with no time sequence! Did you use the correct scene constructor?");
+        throw runtime_error("Movie render attempted on scene with no time sequence. Did you use the correct scene constructor?");
     }
 
     if (m_numThreads <= 0)
@@ -158,26 +164,42 @@ shared_ptr<Movie> Render2d::renderAll()
         throw runtime_error("Invalid number of threads given (" + to_string(m_numThreads) + ")!");
     }
 
+    cout << "\nBeginning simulation... ";
+    auto start = chrono::high_resolution_clock::now();
+
+    vector<SceneInstance> sceneInstances;
+    sceneInstances.reserve(m_spScene->getTimeSeq().size());
+    for (ld_t time : m_spScene->getTimeSeq())
+    {
+        m_sceneThinkFunc(time, m_spScene->getDt());
+        sceneInstances.emplace_back(*m_spScene);
+    }
+    
+    auto end = chrono::high_resolution_clock::now();
+    
+    cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(end - start).count()
+        << "s)\n";
+
     auto spMovie = make_shared<Movie>(m_xRes, m_yRes, m_spScene->getFps(), m_spScene->getTimeSeq().size());
     ull_t numFrames = spMovie->getNumFrames();
     cout << "\nBeginning render " << '(' << m_numThreads << " thread" << (m_numThreads > 1 ? "s" : "") << "): "
         << spMovie->getWidth() << 'x' << spMovie->getHeight() << " @ " << spMovie->getFps() << " -> "
         << numFrames << " frames (" << spMovie->getDuration() << "s)\n";
 
-    auto start = chrono::high_resolution_clock::now();
+    start = chrono::high_resolution_clock::now();
     atomic_ullong aFrameIndex(0);
     vector<thread> renderThreads;
 
     for (ull_t i = 0; i < m_numThreads; i++)
     {
-        renderThreads.emplace_back(threadRender, this, spMovie, &aFrameIndex);
+        renderThreads.emplace_back(threadRender, ref(*this), ref(sceneInstances), ref(spMovie), ref(aFrameIndex));
     }
 
     // Wait for completion
     while (aFrameIndex < numFrames)
     {
         printBar(aFrameIndex, numFrames, NUMBARS);
-        this_thread::sleep_for(chrono::milliseconds(300));
+        this_thread::sleep_for(chrono::milliseconds(500));
     }
 
     for (auto &rt : renderThreads)
@@ -187,7 +209,7 @@ shared_ptr<Movie> Render2d::renderAll()
 
     printBar(numFrames, numFrames, NUMBARS);
 
-    auto end = chrono::high_resolution_clock::now();
+    end = chrono::high_resolution_clock::now();
 
     cout << "\nDone! (" << chrono::duration_cast<chrono::duration<double>>(end - start).count()
         << "s)\n\nRender complete.\n";
@@ -199,4 +221,56 @@ shared_ptr<Movie> Render2d::renderAll()
 void Render2d::setNumThreads(ull_t numThreads)
 {
     m_numThreads = numThreads;
+}
+
+void Render2d::bindThinkFunc(const SceneThinkFunc &stf)
+{
+    m_sceneThinkFunc = stf;
+}
+
+void Render2d::unbindThinkFunc()
+{
+    m_sceneThinkFunc = SceneThink(){return;};
+}
+
+// Render2d::SceneInstance
+Render2d::SceneInstance::SceneInstance(const Scene2d &scene)
+    : m_camera{scene.getCamera()}, m_actors{}, m_bgColor{scene.getBgColor()}, m_shaderQueue{scene.getShaderQueue()}
+{
+    m_actors.reserve(scene.getActors().size());
+    for (const auto &spActor : scene.getActors())
+    {
+        m_actors.push_back(*spActor);
+    }
+}
+
+Scene2d::Camera& Render2d::SceneInstance::getCamera()
+{
+    return m_camera;
+}
+
+const Scene2d::Camera& Render2d::SceneInstance::getCamera() const
+{
+    return m_camera;
+}
+
+const vector<Scene2d::Actor>& Render2d::SceneInstance::getActors() const
+{
+    return m_actors;
+}
+
+RGB Render2d::SceneInstance::getBgColor() const
+{
+    return m_bgColor;
+}
+
+const vector<FragShader>& Render2d::SceneInstance::getShaderQueue() const
+{
+    return m_shaderQueue;
+}
+
+Vec2 Render2d::SceneInstance::ssTransform(const uVec2 &screenSize, const uVec2 &pixCoord) const
+{
+    return (Vec2{ll_t(pixCoord.x - ll_t(screenSize.x / 2)),
+            ll_t(ll_t(screenSize.y / 2) - pixCoord.y)} / m_camera.getZoom() + m_camera.getCenter()).rot(m_camera.getRot());
 }

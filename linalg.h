@@ -101,14 +101,48 @@ class T_Vec2
         return T_Vec2<ld_t>{(ld_t)x/other.x, (ld_t)y/other.y};
     }
 
-    T_Vec2<ld_t> operator*(const ld_t scalar) const
+    T_Vec2<ld_t> operator*(ld_t scalar) const
     {
         return T_Vec2<ld_t>{(ld_t)(x*scalar), (ld_t)(y*scalar)};
     }
 
-    T_Vec2<ld_t> operator/(const ld_t scalar) const
+    T_Vec2<ld_t> operator/(ld_t scalar) const
     {
         return T_Vec2<ld_t>{(ld_t)(x/scalar), (ld_t)(y/scalar)};
+    }
+
+    template<typename O>
+    T_Vec2<T>& operator+=(const T_Vec2<O> &other)
+    {
+        return *this = *this + other;
+    }
+
+    template<typename O>
+    T_Vec2<T>& operator-=(const T_Vec2<O> &other)
+    {
+        return *this = *this - other;
+    }
+
+    template<typename O>
+    T_Vec2<T>& operator*=(const T_Vec2<O> &other)
+    {
+        return *this = *this * other;
+    }
+
+    template<typename O>
+    T_Vec2<T>& operator/=(const T_Vec2<O> &other)
+    {
+        return *this = *this / other;
+    }
+
+    T_Vec2<T>& operator*=(ld_t scalar)
+    {
+        return *this = *this * scalar;
+    }
+
+    T_Vec2<T>& operator/=(ld_t scalar)
+    {
+        return *this = *this / scalar;
     }
 
     template<typename O>
@@ -117,17 +151,17 @@ class T_Vec2
         return x == other.x && y == other.y;
     }
 
-    ld_t Mag()
+    ld_t mag()
     {
         return hypot(x, y);
     }
 
-    T_Vec2<ld_t> Norm()
+    T_Vec2<ld_t> norm()
     {
-        return (*this)/Mag();
+        return (*this)/mag();
     }
 
-    T_Vec2<ld_t> Rot(ld_t radians)
+    T_Vec2<ld_t> rot(ld_t radians)
     {
         return T_Vec2<ld_t>{x * cos(radians) - y * sin(radians), x * sin(radians) + y * cos(radians)};
     }
@@ -222,14 +256,48 @@ class T_Vec3
         return T_Vec3<ld_t>{(ld_t)x/other.x, (ld_t)y/other.y, (ld_t)z/other.z};
     }
 
-    T_Vec3<ld_t> operator*(const ld_t scalar) const
+    T_Vec3<ld_t> operator*(ld_t scalar) const
     {
         return T_Vec3<ld_t>{(ld_t)(x*scalar), (ld_t)(y*scalar), (ld_t)(z*scalar)};
     }
 
-    T_Vec3<ld_t> operator/(const ld_t scalar) const
+    T_Vec3<ld_t> operator/(ld_t scalar) const
     {
         return T_Vec3<ld_t>{(ld_t)(x/scalar), (ld_t)(y/scalar), (ld_t)(z/scalar)};
+    }
+
+    template<typename O>
+    T_Vec3<T>& operator+=(const T_Vec3<O> &other)
+    {
+        return *this = *this + other;
+    }
+
+    template<typename O>
+    T_Vec3<T>& operator-=(const T_Vec3<O> &other)
+    {
+        return *this = *this - other;
+    }
+
+    template<typename O>
+    T_Vec3<T>& operator*=(const T_Vec3<O> &other)
+    {
+        return *this = *this * other;
+    }
+
+    template<typename O>
+    T_Vec3<T>& operator/=(const T_Vec3<O> &other)
+    {
+        return *this = *this / other;
+    }
+
+    T_Vec3<T>& operator*=(ld_t scalar)
+    {
+        return *this = *this * scalar;
+    }
+
+    T_Vec3<T>& operator/=(ld_t scalar)
+    {
+        return *this = *this / scalar;
     }
 
     template<typename O>
@@ -238,14 +306,14 @@ class T_Vec3
         return x == other.x && y == other.y && z == other.z;
     }
 
-    ld_t Mag()
+    ld_t mag()
     {
         return hypot(x, y, z);
     }
 
-    T_Vec3<ld_t> Norm()
+    T_Vec3<ld_t> norm()
     {
-        return (*this)/Mag();
+        return (*this)/mag();
     }
 };
 
@@ -396,19 +464,53 @@ class T_Vec4
     }
 
     template<typename O>
+    T_Vec4<T>& operator+=(const T_Vec4<O> &other)
+    {
+        return *this = *this + other;
+    }
+
+    template<typename O>
+    T_Vec4<T>& operator-=(const T_Vec4<O> &other)
+    {
+        return *this = *this - other;
+    }
+
+    template<typename O>
+    T_Vec4<T>& operator*=(const T_Vec4<O> &other)
+    {
+        return *this = *this * other;
+    }
+
+    template<typename O>
+    T_Vec4<T>& operator/=(const T_Vec4<O> &other)
+    {
+        return *this = *this / other;
+    }
+
+    T_Vec4<T>& operator*=(ld_t scalar)
+    {
+        return *this = *this * scalar;
+    }
+
+    T_Vec4<T>& operator/=(ld_t scalar)
+    {
+        return *this = *this / scalar;
+    }
+
+    template<typename O>
     bool operator==(const T_Vec4<O> &other) const
     {
         return x == other.x && y == other.y && z == other.z && w == other.w;
     }
 
-    ld_t Mag()
+    ld_t mag()
     {
         return hypot(x, y, z, w);
     }
 
     T_Vec4<ld_t> Norm()
     {
-        return (*this)/Mag();
+        return (*this)/mag();
     }
 };
 

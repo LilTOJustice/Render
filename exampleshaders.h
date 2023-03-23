@@ -39,7 +39,7 @@ int multi(const std::complex<long double> &c, const long double exponent)
 }
 
 FragShader mandelbrot =
-Frag
+Frag()
 {
     fVec2 st = fragcoord/res;
     st.x *= 1.*res.x/res.y;
@@ -50,7 +50,7 @@ Frag
 };
 
 FragShader multibrot =
-Frag
+Frag()
 {
     fVec2 st = fragcoord/res;
     st.x *= 1.*res.x/res.y;
@@ -61,7 +61,7 @@ Frag
 };
 
 FragShader rainbow =
-Frag
+Frag()
 {
     out = in * fVec4(ToRGB(HSV(fmod(180*time, 360), 1, 1))/255., 255.);
 };

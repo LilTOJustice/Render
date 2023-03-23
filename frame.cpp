@@ -83,7 +83,7 @@ void Movie::output(string filename) const
     cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
 }
 
-void Movie::writeFrame(shared_ptr<Frame> spFrame, ull_t frameIndex)
+void Movie::writeFrame(const shared_ptr<Frame> &spFrame, ull_t frameIndex)
 {
     if (frameIndex >= m_numFrames)
     {

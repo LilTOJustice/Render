@@ -1,7 +1,8 @@
 #pragma once
 
-#include <vector>
 #include <memory>
+#include <unordered_set>
+#include <vector>
 
 #include "shapes.h"
 
@@ -13,13 +14,24 @@ class Scene2d
     {
         public:
         Camera(const Vec2 &center, ld_t zoom, ld_t rot);
+        Camera& operator=(const Camera &c) = default;
 
         void setCenter(const Vec2 &center);
+
         void setZoom(ld_t zoom);
+        
         void setRot(ld_t rot);
+        
+        void translate(const Vec2 &change);
+
+        void scaleZoom(ld_t zoom);
+
+        void rotate(ld_t change);
 
         const Vec2& getCenter() const;
+        
         ld_t getZoom() const;
+        
         ld_t getRot() const;
 
         private:
@@ -31,16 +43,28 @@ class Scene2d
     class Actor
     {
         public:
-        Actor(std::shared_ptr<Sprite> spSprite = nullptr, Vec2 pos = {}, uVec2 size = {}, ld_t rot = 0);
+        Actor(const std::shared_ptr<Sprite> &spSprite = nullptr, Vec2 pos = {}, uVec2 size = {}, ld_t rot = 0);
 
-        void setSprite(std::shared_ptr<Sprite> spSprite);
+        void setSprite(const std::shared_ptr<Sprite> &spSprite);
+        
         void setPos(const Vec2 &pos);
+        
         void setSize(const uVec2 &size);
+        
         void setRot(ld_t rot);
+
+        void translate(const Vec2 &change);
+
+        void scale(const fVec2 &scale);
+
+        void rotate(ld_t change);
         
         std::shared_ptr<Sprite> getSprite() const;
+        
         const Vec2& getPos() const;
+        
         const uVec2& getSize() const;
+        
         ld_t getRot() const;
 
         private:
@@ -53,8 +77,12 @@ class Scene2d
     Scene2d(ull_t framerate, ld_t duration, const RGB &bgColor = RGB{0, 0, 0}); // For Movie rendering or single-frame rendering
     Scene2d(const RGB &bgColor = RGB{0, 0, 0}); // For single-frame rendering
 
-    void addActor(const Actor &actor);
-    void addActor(std::shared_ptr<Sprite> spSprite, const Vec2 &pos = {}, const uVec2 &size = {}, ld_t rot = {});
+    void addActor(const std::shared_ptr<Actor> &spActor);
+    void addActor(const std::vector<std::shared_ptr<Actor>> &spActor);
+
+    std::shared_ptr<Actor> addActor(const std::shared_ptr<Sprite> &spSprite, const Vec2 &pos = {}, const uVec2 &size = {}, ld_t rot = {});
+
+    bool removeActor(const std::shared_ptr<Actor> &spActor);
 
     ull_t getFps() const;
 
@@ -63,7 +91,9 @@ class Scene2d
 
     const std::vector<ld_t>& getTimeSeq() const;
 
-    const std::vector<Actor>& getActors() const;
+    ld_t getDt() const;
+
+    const std::unordered_set<std::shared_ptr<Actor>>& getActors() const;
 
     RGB getBgColor() const;
 
@@ -79,7 +109,8 @@ class Scene2d
     ull_t m_fps;
     Camera m_camera;
     std::vector<ld_t> m_timeSeq;
-    std::vector<Actor> m_actors;
+    ld_t m_dt;
+    std::unordered_set<std::shared_ptr<Actor>> m_actors;
     RGB m_bgColor;
     std::vector<FragShader> m_shaderQueue; // Functions like a queue
 };
