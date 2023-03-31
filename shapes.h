@@ -14,22 +14,19 @@ class Solid
 class Sprite
 {
     public:
-    Sprite(ull_t width, ull_t height, const RGBA &color = RGBA{});
+    Sprite(const uVec2 &size, const RGBA &color = RGBA{});
     Sprite(const std::string filename);
 
-    ull_t getWidth();
-    ull_t getHeight();
+    uVec2 getSize() const;
+    ull_t getWidth() const;
+    ull_t getHeight() const;
     const RGBA* getPixMap() const;
     RGBA* getPixMap();
-    const std::vector<FragShader>& getShaderQueue();
-    void queueShader(const FragShader &fragShader);
-    void clearShaders();
 
     ~Sprite();
 
     private:
-    ull_t m_width, m_height;
+    uVec2 m_size;
     RGBA* m_pPixMap;
-    std::vector<FragShader> m_shaderQueue;
 };
 

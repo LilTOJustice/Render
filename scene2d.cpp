@@ -11,9 +11,9 @@ Scene2d::Scene2d(ull_t fps, ld_t duration, const RGB &bgColor)
     if (fps > 0)
     {
         m_dt = 1. / fps;
-        for (ld_t t = 0; t <= duration - m_dt; t += m_dt)
+        for (ull_t i = 0; i < duration*fps; i ++)
         {
-            m_timeSeq.push_back(t);
+            m_timeSeq.push_back(i * m_dt);
         }
     }
 }
@@ -42,12 +42,13 @@ shared_ptr<Scene2d::Actor> Scene2d::addActor(const shared_ptr<Sprite> &spSprite,
     return spActor;
 }
 
+/*
 shared_ptr<Scene2d::Line> Scene2d::addLine(const Vec2 &start, const Vec2 &end, const RGBA &color, ull_t thickness)
 {
     auto spLine = make_shared<Line>(start, end, color, thickness);
     m_actors.insert(spLine);
     return spLine;
-}
+}*/
 
 bool Scene2d::removeActor(const std::shared_ptr<Actor> &spActor)
 {
@@ -104,12 +105,6 @@ void Scene2d::clearShaders()
     m_shaderQueue.clear();
 }
 
-Vec2 Scene2d::ssTransform(const uVec2 &screenSize, const uVec2 &pixCoord) const
-{
-    return (Vec2{ll_t(pixCoord.x - ll_t(screenSize.x / 2)),
-            ll_t(ll_t(screenSize.y / 2) - pixCoord.y)} / m_camera.getZoom() + m_camera.getCenter()).rot(m_camera.getRot());
-}
-
 // Scene2d::Camera
 Scene2d::Camera::Camera(const Vec2 &center, ld_t zoom, ld_t rot)
     : m_center{center}, m_zoom{zoom}, m_rot{rot}
@@ -140,9 +135,9 @@ void Scene2d::Camera::scaleZoom(ld_t zoomScale)
     m_zoom *= zoomScale;
 }
 
-void Scene2d::Camera::rotate(ld_t change)
+void Scene2d::Camera::rotate(ld_t radChange)
 {
-    m_rot += change;
+    m_rot += radChange;
 }
 
 const Vec2& Scene2d::Camera::getCenter() const
@@ -202,12 +197,17 @@ void Scene2d::Actor::translate(const Vec2 &change)
 
 void Scene2d::Actor::scale(const fVec2 &scale)
 {
-    m_size *= scale;
+    m_size = fVec2{m_size} * scale;
 }
 
-void Scene2d::Actor::rotate(ld_t change)
+void Scene2d::Actor::scale(ld_t scale)
 {
-    m_rot += change;
+    m_size = fVec2{m_size} * scale;
+}
+
+void Scene2d::Actor::rotate(ld_t radChange)
+{
+    m_rot += radChange;
 }
 
 shared_ptr<Sprite> Scene2d::Actor::getSprite() const
@@ -225,14 +225,40 @@ const uVec2& Scene2d::Actor::getSize() const
     return m_size;
 }
 
+ull_t Scene2d::Actor::getWidth() const
+{
+    return m_size.x;
+}
+        
+ull_t Scene2d::Actor::getHeight() const
+{
+    return m_size.y;
+}
+
 ld_t Scene2d::Actor::getRot() const
 {
     return m_rot;
 }
 
+const vector<FragShader>& Scene2d::Actor::getShaderQueue() const
+{
+    return m_shaderQueue;
+}
+        
+void Scene2d::Actor::queueShader(const FragShader &fragShader)
+{
+    m_shaderQueue.push_back(fragShader);
+}
+
+void Scene2d::Actor::clearShaders()
+{
+    m_shaderQueue.clear();
+}
+
+/* TODO: Implement lines using alphablend
 // Scene2d::Line
 Scene2d::Line::Line(const Vec2 &start, const Vec2 &end, const RGBA &color, ull_t thickness)
-    : Actor(make_shared<Sprite>(uVec2(end - start).x, uVec2(end - start).y, color), Vec2((start + (end - start))/2))
+    : Actor(make_shared<Sprite>(uVec2{end - start}, color), Vec2((start + (end - start)) / 2))
 {
     m_color = color;
     m_thickness = thickness;
@@ -273,4 +299,4 @@ RGBA Scene2d::Line::getColor() const
 ull_t Scene2d::Line::getThickness() const
 {
     return m_thickness;
-}
+}*/

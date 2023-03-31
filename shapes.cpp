@@ -10,14 +10,14 @@ using namespace std;
 using namespace cimg_library;
 
 // Sprite
-Sprite::Sprite(ull_t width, ull_t height, const RGBA &color)
-    : m_width{width}, m_height{height}, m_pPixMap{new RGBA[width * height]}
+Sprite::Sprite(const uVec2 &size, const RGBA &color)
+    : m_size{size}, m_pPixMap{new RGBA[size.x * size.y]}
 {
-    for (ull_t i = 0; i < height; i++)
+    for (ull_t i = 0; i < size.y; i++)
     {
-        for (ull_t j = 0; j < width; j++)
+        for (ull_t j = 0; j < size.x; j++)
         {
-            m_pPixMap[i * width + j] = color;
+            m_pPixMap[i * size.x + j] = color;
         }
     }
 }
@@ -26,12 +26,11 @@ Sprite::Sprite(const string filename)
 {
     CImg<byte_t> img(filename.c_str());
 
-    m_width = img.width();
-    m_height = img.height();
+    m_size = uVec2{ull_t(img.width()), ull_t(img.height())};
 
-    ull_t imgSize = m_width * m_height;
+    ull_t imgSize = m_size.x * m_size.y;
     ull_t spectrum = img.spectrum();
-    m_pPixMap = new RGBA[m_width * m_height];
+    m_pPixMap = new RGBA[imgSize];
 
     switch(spectrum)
     {
@@ -76,14 +75,19 @@ Sprite::Sprite(const string filename)
     }
 }
 
-ull_t Sprite::getWidth()
+uVec2 Sprite::getSize() const
 {
-    return m_width;
+    return m_size;
 }
 
-ull_t Sprite::getHeight()
+ull_t Sprite::getWidth() const
 {
-    return m_height;
+    return m_size.x;
+}
+
+ull_t Sprite::getHeight() const
+{
+    return m_size.y;
 }
 
 const RGBA* Sprite::getPixMap() const
@@ -94,21 +98,6 @@ const RGBA* Sprite::getPixMap() const
 RGBA* Sprite::getPixMap()
 {
     return m_pPixMap;
-}
-
-const vector<FragShader>& Sprite::getShaderQueue()
-{
-    return m_shaderQueue;
-}
-        
-void Sprite::queueShader(const FragShader &fragShader)
-{
-    m_shaderQueue.push_back(fragShader);
-}
-
-void Sprite::clearShaders()
-{
-    m_shaderQueue.clear();
 }
 
 Sprite::~Sprite()

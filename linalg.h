@@ -33,8 +33,6 @@ typedef T_Vec3<ld_t> Rot;
 // Color types
 typedef T_Vec3<byte_t> RGB;
 typedef T_Vec4<byte_t> RGBA;
-typedef T_Vec3<byte_t&> RGBRef;
-typedef T_Vec4<byte_t&> RGBARef;
 typedef T_Vec3<ld_t> HSV;
 
 template<typename T>
@@ -83,39 +81,41 @@ class T_Vec2
         *this = other.xy;
         return *this;
     }
-    
-    template<typename O>
-    T_Vec2<T> operator+(const T_Vec2<O> &other) const
-    {
-        return T_Vec2<T>{T(x+other.x), T(y+other.y)};
-    }
 
     template<typename O>
-    T_Vec2<T> operator-(const T_Vec2<O> &other) const
+    auto operator+(const T_Vec2<O> &other) const
     {
-        return T_Vec2<T>{T(x-other.x), T(y-other.y)};
+        return T_Vec2<decltype(x + other.x)>{x + other.x, y + other.y};
     }
 
     template<typename O>
-    T_Vec2<T> operator*(const T_Vec2<O> &other) const
+    auto operator-(const T_Vec2<O> &other) const
     {
-        return T_Vec2<T>{T(x*other.x), T(y*other.y)};
+        return T_Vec2<decltype(x - other.x)>{x - other.x, y - other.y};
     }
 
     template<typename O>
-    T_Vec2<ld_t> operator/(const T_Vec2<O> &other) const
+    auto operator*(const T_Vec2<O> &other) const
     {
-        return T_Vec2<ld_t>{(ld_t)x/other.x, (ld_t)y/other.y};
+        return T_Vec2<decltype(x * other.x)>{x * other.x, y * other.y};
     }
 
-    T_Vec2<ld_t> operator*(ld_t scalar) const
+    template<typename O>
+    auto operator/(const T_Vec2<O> &other) const
     {
-        return T_Vec2<ld_t>{(ld_t)(x*scalar), (ld_t)(y*scalar)};
+        return T_Vec2<decltype(x / other.x)>{x / other.x, y / other.y};
     }
 
-    T_Vec2<ld_t> operator/(ld_t scalar) const
+    template<typename O>
+    auto operator*(O scalar) const
     {
-        return T_Vec2<ld_t>{(ld_t)(x/scalar), (ld_t)(y/scalar)};
+        return T_Vec2<decltype(x * scalar)>{x * scalar, y * scalar};
+    }
+
+    template<typename O>
+    auto operator/(O scalar) const
+    {
+        return T_Vec2<decltype(x / scalar)>{x / scalar, y / scalar};
     }
 
     template<typename O>
@@ -142,12 +142,14 @@ class T_Vec2
         return *this = *this / other;
     }
 
-    T_Vec2<T>& operator*=(ld_t scalar)
+    template<typename O>
+    T_Vec2<T>& operator*=(O scalar)
     {
         return *this = *this * scalar;
     }
 
-    T_Vec2<T>& operator/=(ld_t scalar)
+    template<typename O>
+    T_Vec2<T>& operator/=(O scalar)
     {
         return *this = *this / scalar;
     }
@@ -158,17 +160,23 @@ class T_Vec2
         return x == other.x && y == other.y;
     }
 
-    ld_t mag()
+    template<typename O>
+    bool operator!=(const T_Vec2<O> &other) const
+    {
+        return !(*this == other);
+    }
+
+    ld_t mag() const
     {
         return hypot(x, y);
     }
 
-    T_Vec2<ld_t> norm()
+    T_Vec2<ld_t> norm() const
     {
         return (*this)/mag();
     }
 
-    T_Vec2<ld_t> rot(ld_t radians)
+    T_Vec2<ld_t> rot(ld_t radians) const
     {
         return T_Vec2<ld_t>{x * cos(radians) - y * sin(radians), x * sin(radians) + y * cos(radians)};
     }
@@ -212,9 +220,9 @@ class T_Vec3
         , h{x}
         , s{y}
         , v{z}
-        , xy{T_Vec2<O&>{x, y}}
-        , xz{T_Vec2<O&>{x, z}}
-        , yz{T_Vec2<O&>{y, z}}
+        , xy{T_Vec2<T&>{x, y}}
+        , xz{T_Vec2<T&>{x, z}}
+        , yz{T_Vec2<T&>{y, z}}
     {}
 
     T_Vec3<T>& operator=(const T_Vec3<T> &other)
@@ -248,37 +256,39 @@ class T_Vec3
     }
 
     template<typename O>
-    T_Vec3<T> operator+(const T_Vec3<O> &other) const
+    auto operator+(const T_Vec3<O> &other) const
     {
-        return T_Vec3<T>{T(x+other.x), T(y+other.y), T(z+other.z)};
+        return T_Vec3<decltype(x + other.x)>{x + other.x, y + other.y, z + other.z};
     }
 
     template<typename O>
-    T_Vec3<T> operator-(const T_Vec3<O> &other) const
+    auto operator-(const T_Vec3<O> &other) const
     {
-        return T_Vec3<T>{T(x-other.x), T(y-other.y), T(z-other.z)};
+        return T_Vec3<decltype(x - other.x)>{x - other.x, y - other.y, z - other.z};
     }
 
     template<typename O>
-    T_Vec3<T> operator*(const T_Vec3<O> &other) const
+    auto operator*(const T_Vec3<O> &other) const
     {
-        return T_Vec3<T>{T(x*other.x), T(y*other.y), T(z*other.z)};
+        return T_Vec3<decltype(x * other.x)>{x * other.x, y * other.y, z * other.z};
     }
 
     template<typename O>
-    T_Vec3<ld_t> operator/(const T_Vec3<O> &other) const
+    auto operator/(const T_Vec3<O> &other) const
     {
-        return T_Vec3<ld_t>{(ld_t)x/other.x, (ld_t)y/other.y, (ld_t)z/other.z};
+        return T_Vec3<decltype(x / other.x)>{x / other.x, y / other.y, z / other.z};
     }
 
-    T_Vec3<ld_t> operator*(ld_t scalar) const
+    template<typename O>
+    auto operator*(O scalar) const
     {
-        return T_Vec3<ld_t>{(ld_t)(x*scalar), (ld_t)(y*scalar), (ld_t)(z*scalar)};
+        return T_Vec3<decltype(x * scalar)>{x * scalar, y * scalar, z * scalar};
     }
 
-    T_Vec3<ld_t> operator/(ld_t scalar) const
+    template<typename O>
+    auto operator/(O scalar) const
     {
-        return T_Vec3<ld_t>{(ld_t)(x/scalar), (ld_t)(y/scalar), (ld_t)(z/scalar)};
+        return T_Vec3<decltype(x / scalar)>{x / scalar, y / scalar, z / scalar};
     }
 
     template<typename O>
@@ -305,12 +315,14 @@ class T_Vec3
         return *this = *this / other;
     }
 
-    T_Vec3<T>& operator*=(ld_t scalar)
+    template<typename O>
+    T_Vec3<T>& operator*=(O scalar)
     {
         return *this = *this * scalar;
     }
 
-    T_Vec3<T>& operator/=(ld_t scalar)
+    template<typename O>
+    T_Vec3<T>& operator/=(O scalar)
     {
         return *this = *this / scalar;
     }
@@ -321,12 +333,18 @@ class T_Vec3
         return x == other.x && y == other.y && z == other.z;
     }
 
-    ld_t mag()
+    template<typename O>
+    bool operator!=(const T_Vec3<O> &other) const
+    {
+        return !(*this == other);
+    }
+
+    ld_t mag() const
     {
         return hypot(x, y, z);
     }
 
-    T_Vec3<ld_t> norm()
+    T_Vec3<ld_t> norm() const
     {
         return (*this)/mag();
     }
@@ -383,17 +401,17 @@ class T_Vec4
         , g{y}
         , b{z}
         , a{w}
-        , xy{T_Vec2<O&>{x, y}}
-        , xz{T_Vec2<O&>{x, z}}
-        , xw{T_Vec2<O&>{x, w}}
-        , yz{T_Vec2<O&>{y, z}}
-        , yw{T_Vec2<O&>{y, w}}
-        , zw{T_Vec2<O&>{z, w}}
-        , xyz{T_Vec3<O&>{x, y, z}}
-        , xyw{T_Vec3<O&>{x, y, w}}
-        , xzw{T_Vec3<O&>{x, z, w}}
-        , yzw{T_Vec3<O&>{y, z, w}}
-        , rgb{T_Vec3<O&>{x, y, z}}
+        , xy{T_Vec2<T&>{x, y}}
+        , xz{T_Vec2<T&>{x, z}}
+        , xw{T_Vec2<T&>{x, w}}
+        , yz{T_Vec2<T&>{y, z}}
+        , yw{T_Vec2<T&>{y, w}}
+        , zw{T_Vec2<T&>{z, w}}
+        , xyz{T_Vec3<T&>{x, y, z}}
+        , xyw{T_Vec3<T&>{x, y, w}}
+        , xzw{T_Vec3<T&>{x, z, w}}
+        , yzw{T_Vec3<T&>{y, z, w}}
+        , rgb{T_Vec3<T&>{x, y, z}}
     {}
  
     T_Vec4(const T_Vec3<T> &other, const T &_w)
@@ -453,37 +471,39 @@ class T_Vec4
     }
 
     template<typename O>
-    T_Vec4<T> operator+(const T_Vec4<O> &other) const
+    auto operator+(const T_Vec4<O> &other) const
     {
-        return T_Vec4<T>{T(x+other.x), T(y+other.y), T(z+other.z), T(w+other.w)};
+        return T_Vec4<decltype(x + other.x)>{x + other.x, y + other.y, z + other.z, w + other.w};
     }
 
     template<typename O>
-    T_Vec4<T> operator-(const T_Vec4<O> &other) const
+    auto operator-(const T_Vec4<O> &other) const
     {
-        return T_Vec4<T>{T(x-other.x), T(y-other.y), T(z-other.z), T(w-other.w)};
+        return T_Vec4<decltype(x - other.x)>{x - other.x, y - other.y, z - other.z, w - other.w};
     }
 
     template<typename O>
-    T_Vec4<T> operator*(const T_Vec4<O> &other) const
+    auto operator*(const T_Vec4<O> &other) const
     {
-        return T_Vec4<T>{T(x*other.x), T(y*other.y), T(z*other.z), T(w*other.w)};
+        return T_Vec4<decltype(x * other.x)>{x * other.x, y * other.y, z * other.z, w * other.w};
     }
 
     template<typename O>
-    T_Vec4<ld_t> operator/(const T_Vec4<O> &other) const
+    auto operator/(const T_Vec4<O> &other) const
     {
-        return T_Vec4<ld_t>{(ld_t)x/other.x, (ld_t)y/other.y, (ld_t)z/other.z, (ld_t)w/other.w};
+        return T_Vec4<decltype(x / other.x)>{x / other.x, y / other.y, z / other.z, w / other.w};
     }
 
-    T_Vec4<ld_t> operator*(const ld_t scalar) const
+    template<typename O>
+    auto operator*(O scalar) const
     {
-        return T_Vec4<ld_t>{(ld_t)(x*scalar), (ld_t)(y*scalar), (ld_t)(z*scalar), (ld_t)(w*scalar)};
+        return T_Vec4<decltype(x * scalar)>{x * scalar, y * scalar, z * scalar, w * scalar};
     }
 
-    T_Vec4<ld_t> operator/(const ld_t scalar) const
+    template<typename O>
+    auto operator/(O scalar) const
     {
-        return T_Vec4<ld_t>{(ld_t)(x/scalar), (ld_t)(y/scalar), (ld_t)(z/scalar), (ld_t)(w/scalar)};
+        return T_Vec4<decltype(x / scalar)>{x / scalar, y / scalar, z / scalar, w / scalar};
     }
 
     template<typename O>
@@ -510,12 +530,14 @@ class T_Vec4
         return *this = *this / other;
     }
 
-    T_Vec4<T>& operator*=(ld_t scalar)
+    template<typename O>
+    T_Vec4<T>& operator*=(O scalar)
     {
         return *this = *this * scalar;
     }
 
-    T_Vec4<T>& operator/=(ld_t scalar)
+    template<typename O>
+    T_Vec4<T>& operator/=(O scalar)
     {
         return *this = *this / scalar;
     }
@@ -526,19 +548,25 @@ class T_Vec4
         return x == other.x && y == other.y && z == other.z && w == other.w;
     }
 
-    ld_t mag()
+    template<typename O>
+    bool operator!=(const T_Vec4<O> &other) const
+    {
+        return !(*this == other);
+    }
+
+    ld_t mag() const
     {
         return hypot(x, y, z, w);
     }
 
-    T_Vec4<ld_t> Norm()
+    T_Vec4<ld_t> Norm() const
     {
         return (*this)/mag();
     }
 };
 
 
-// Color functions
+// Color functions / Helpers
 template<typename T>
 T max(T first, T second)
 {
@@ -554,4 +582,4 @@ T min(T first, T second)
 const ld_t DEGPERPI = 180 / 3.14159265;
 HSV ToHSV(const RGB &rgb);
 RGB ToRGB(const HSV &hsv);
-RGBA AlphaBlend(const RGBA &front, const RGBA &back);
+RGBA alphaBlend(const RGBA &front, const RGBA &back);

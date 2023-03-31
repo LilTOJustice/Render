@@ -23,9 +23,9 @@ void Frame::output(string filename) const
     cout << "Done! (" << chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now()-start).count() << "s)\n";
 }
 
-RGBARef Frame::operator[](ull_t index)
+Frame::RGBARef Frame::operator[](ull_t index)
 {
-    return RGBARef{
+    return Frame::RGBARef{
         m_pImage[index],                                                // r
         m_pImage[index + m_colorStride],                                // g
         m_pImage[index + m_colorStride + m_colorStride],                // b

@@ -11,6 +11,8 @@
 
 class Frame
 {
+    typedef T_Vec4<byte_t&> RGBARef;
+
     public:
     Frame(ull_t width, ull_t height);
 

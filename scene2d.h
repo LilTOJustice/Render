@@ -14,7 +14,6 @@ class Scene2d
     {
         public:
         Camera(const Vec2 &center, ld_t zoom, ld_t rot);
-        Camera& operator=(const Camera &c) = default;
 
         void setCenter(const Vec2 &center);
 
@@ -26,7 +25,7 @@ class Scene2d
 
         void scaleZoom(ld_t zoom);
 
-        void rotate(ld_t change);
+        void rotate(ld_t radChange);
 
         const Vec2& getCenter() const;
         
@@ -56,8 +55,9 @@ class Scene2d
         void translate(const Vec2 &change);
 
         void scale(const fVec2 &scale);
+        void scale(ld_t scale);
 
-        void rotate(ld_t change);
+        void rotate(ld_t radChange);
 
         std::shared_ptr<Sprite> getSprite() const;
 
@@ -65,15 +65,27 @@ class Scene2d
 
         const uVec2& getSize() const;
 
+        ull_t getWidth() const;
+        
+        ull_t getHeight() const;
+
         ld_t getRot() const;
+
+        const std::vector<FragShader>& getShaderQueue() const;
+
+        void queueShader(const FragShader &fragShader);
+        
+        void clearShaders();
 
         protected:
         std::shared_ptr<Sprite> m_spSprite;
         Vec2 m_pos;
         uVec2 m_size;
         ld_t m_rot;
+        std::vector<FragShader> m_shaderQueue;
     };
 
+    /* TODO: Implement lines using alphablend
     class Line : public Actor
     {
         public:
@@ -83,7 +95,7 @@ class Scene2d
         void setRot(ld_t rot) = delete;
         void translate(const Vec2 &change) = delete;
         void scale(const fVec2 &scale) = delete;
-        void rotate(ld_t change) = delete;
+        void rotate(ld_t radChange) = delete;
         const Vec2& getPos() const = delete;
         const uVec2& getSize() const = delete;
         ld_t getRot() const = delete;
@@ -101,7 +113,7 @@ class Scene2d
         private:
         RGBA m_color;
         ull_t m_thickness;
-    };
+    };*/
 
     Scene2d(ull_t framerate, ld_t duration, const RGB &bgColor = RGB{0, 0, 0}); // For Movie rendering or single-frame rendering
     Scene2d(const RGB &bgColor = RGB{0, 0, 0}); // For single-frame rendering
@@ -110,7 +122,7 @@ class Scene2d
     void addActor(const std::vector<std::shared_ptr<Actor>> &spActor);
 
     std::shared_ptr<Actor> addActor(const std::shared_ptr<Sprite> &spSprite, const Vec2 &pos = {}, const uVec2 &size = {}, ld_t rot = {});
-    std::shared_ptr<Line> addLine(const Vec2 &start, const Vec2 &end, const RGBA &color = RGBA{}, ull_t thickness = 0);
+    //std::shared_ptr<Line> addLine(const Vec2 &start, const Vec2 &end, const RGBA &color = RGBA{}, ull_t thickness = 0);
 
     bool removeActor(const std::shared_ptr<Actor> &spActor);
 
@@ -132,8 +144,6 @@ class Scene2d
     void queueShader(const FragShader &shader);
 
     void clearShaders();
-
-    Vec2 ssTransform(const uVec2 &screenSize, const uVec2 &pixCoord) const;
 
     private:
     ull_t m_fps;

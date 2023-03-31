@@ -63,7 +63,7 @@ RGB ToRGB(const HSV &hsv)
     return RGB(R, G, B);
 }
 
-RGBA AlphaBlend(const RGBA &front, const RGBA &back)
+RGBA alphaBlend(const RGBA &front, const RGBA &back)
 {
     //ld_t alpha = front.a;
     //RGB blended = front.rgb * alpha + back.rgb * (1. - alpha);
