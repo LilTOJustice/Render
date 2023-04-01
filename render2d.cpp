@@ -68,16 +68,31 @@ shared_ptr<Frame> Render2d::render(const Render2d::SceneInstance &scene, ld_t ti
 
     // Actor rendering
     RGBA bgColor{scene.getBgColor(), 255};
+    auto spBgSprite = scene.getBgSprite();
+    ll_t bgSpriteLeft = -(spBgSprite->getWidth() / 2);
+    ll_t bgSpriteRight = spBgSprite->getWidth() / 2;
+    ll_t bgSpriteBottom = -(spBgSprite->getHeight() / 2);
+    ll_t bgSpriteTop = spBgSprite->getHeight() / 2;
+    RGBA *bgSpritePixMap = spBgSprite->getPixMap();
+    ull_t bgSpritePMArrLength = spBgSprite->getWidth() * spBgSprite->getHeight();
     for (ull_t i = 0; i < m_yRes; i++)
     {
         for (ull_t j = 0; j < m_xRes; j++)
         {
+            Vec2 worldLoc = scene.screenToWorld(screenRes, uVec2{j, i});
+
+            // Sample bgColor, then overwrite with bgSprite
             RGBA outColor = bgColor;
+            Vec2 pixMapIndInt = worldLoc - Vec2{bgSpriteLeft, bgSpriteTop};
+            uVec2 pixMapVInd = uVec2{ull_t(pixMapIndInt.x) % spBgSprite->getWidth()
+                , ull_t(-pixMapIndInt.y) % spBgSprite->getHeight()};
+            ull_t pixMapInd = pixMapVInd.y * spBgSprite->getWidth() + pixMapVInd.x;
+            outColor = alphaBlend(bgSpritePixMap[pixMapInd], outColor);
 
             // Now sample from each actor, TODO: Make this more efficient
             for (const auto &actor : scene.getActors())
             {
-                Vec2 actorLoc = scene.screenToActor(screenRes, actor, uVec2{j, i});
+                Vec2 actorLoc = scene.worldToActor(actor, worldLoc);
 
                 // Now convert to top-left relative for sprite sample
                 actorLoc -= Vec2{-ll_t(actor.getSize().x / 2), ll_t(actor.getSize().y / 2)};
@@ -270,7 +285,7 @@ void Render2d::unbindThinkFunc()
 
 // Render2d::SceneInstance
 Render2d::SceneInstance::SceneInstance(const Scene2d &scene)
-    : m_camera{scene.getCamera()}, m_actors{}, m_bgColor{scene.getBgColor()}, m_shaderQueue{scene.getShaderQueue()}
+    : m_camera{scene.getCamera()}, m_actors{}, m_bgColor{scene.getBgColor()}, m_bgSprite{scene.getBgSprite()}, m_shaderQueue{scene.getShaderQueue()}
 {
     m_actors.reserve(scene.getActors().size());
     for (const auto &spActor : scene.getActors())
@@ -292,6 +307,11 @@ const vector<Scene2d::Actor>& Render2d::SceneInstance::getActors() const
 RGB Render2d::SceneInstance::getBgColor() const
 {
     return m_bgColor;
+}
+
+shared_ptr<Sprite> Render2d::SceneInstance::getBgSprite() const
+{
+    return m_bgSprite;
 }
 
 const vector<FragShader>& Render2d::SceneInstance::getShaderQueue() const

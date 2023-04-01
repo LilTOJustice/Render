@@ -8,7 +8,8 @@ using namespace std;
 int main()
 {
     // 2d scene: 90 fps, 2s duration, background color light blue
-    auto spScene = make_shared<Scene2d>(90, 2, RGB{20, 180, 255});
+    auto spBgSprite = make_shared<Sprite>("F24_6pack2_2560x1440.png");
+    auto spScene = make_shared<Scene2d>(90, 2, RGB{20, 180, 255}, spBgSprite);
 
     // Renderer with screen size 2560x1440 bound to the scene
     Render2d r2d(2560, 1440, spScene);

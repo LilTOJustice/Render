@@ -30,6 +30,8 @@ class Render2d
 
         RGB getBgColor() const;
 
+        std::shared_ptr<Sprite> getBgSprite() const;
+
         const std::vector<FragShader>& getShaderQueue() const;
 
         // Coordinate space transforms
@@ -42,6 +44,7 @@ class Render2d
         const Scene2d::Camera m_camera;
         std::vector<Scene2d::Actor> m_actors;
         const RGB m_bgColor;
+        const std::shared_ptr<Sprite> m_bgSprite;
         const std::vector<FragShader> m_shaderQueue; // Functions like a queue
     };
     

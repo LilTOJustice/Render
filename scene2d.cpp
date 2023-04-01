@@ -5,8 +5,8 @@
 using namespace std;
 
 // Scene2d
-Scene2d::Scene2d(ull_t fps, ld_t duration, const RGB &bgColor)
-    : m_fps{fps}, m_camera{Vec2{0, 0}, 1, 0}, m_bgColor{bgColor}
+Scene2d::Scene2d(ull_t fps, ld_t duration, const RGB &bgColor, const shared_ptr<Sprite> &bgSprite)
+    : m_fps{fps}, m_camera{Vec2{0, 0}, 1, 0}, m_bgColor{bgColor}, m_bgSprite{bgSprite}
 {
     if (fps > 0)
     {
@@ -88,6 +88,11 @@ const unordered_set<shared_ptr<Scene2d::Actor>>& Scene2d::getActors() const
 RGB Scene2d::getBgColor() const
 {
     return m_bgColor;
+}
+
+shared_ptr<Sprite> Scene2d::getBgSprite() const
+{
+    return m_bgSprite;
 }
 
 const vector<FragShader>& Scene2d::getShaderQueue() const
