@@ -70,11 +70,8 @@ shared_ptr<Frame> Render2d::render(const Render2d::SceneInstance &scene, ld_t ti
     RGBA bgColor{scene.getBgColor(), 255};
     auto spBgSprite = scene.getBgSprite();
     ll_t bgSpriteLeft = -(spBgSprite->getWidth() / 2);
-    ll_t bgSpriteRight = spBgSprite->getWidth() / 2;
-    ll_t bgSpriteBottom = -(spBgSprite->getHeight() / 2);
     ll_t bgSpriteTop = spBgSprite->getHeight() / 2;
     RGBA *bgSpritePixMap = spBgSprite->getPixMap();
-    ull_t bgSpritePMArrLength = spBgSprite->getWidth() * spBgSprite->getHeight();
     for (ull_t i = 0; i < m_yRes; i++)
     {
         for (ull_t j = 0; j < m_xRes; j++)
@@ -83,11 +80,15 @@ shared_ptr<Frame> Render2d::render(const Render2d::SceneInstance &scene, ld_t ti
 
             // Sample bgColor, then overwrite with bgSprite
             RGBA outColor = bgColor;
-            Vec2 pixMapIndInt = worldLoc - Vec2{bgSpriteLeft, bgSpriteTop};
-            uVec2 pixMapVInd = uVec2{ull_t(pixMapIndInt.x) % spBgSprite->getWidth()
-                , ull_t(-pixMapIndInt.y) % spBgSprite->getHeight()};
-            ull_t pixMapInd = pixMapVInd.y * spBgSprite->getWidth() + pixMapVInd.x;
-            outColor = alphaBlend(bgSpritePixMap[pixMapInd], outColor);
+            
+            if (spBgSprite->getWidth() != 0 && spBgSprite->getHeight() != 0)
+            {
+                Vec2 pixMapIndInt = worldLoc - Vec2{bgSpriteLeft, bgSpriteTop};
+                uVec2 pixMapVInd = uVec2{ull_t(pixMapIndInt.x) % spBgSprite->getWidth()
+                    , ull_t(-pixMapIndInt.y) % spBgSprite->getHeight()};
+                ull_t pixMapInd = pixMapVInd.y * spBgSprite->getWidth() + pixMapVInd.x;
+                outColor = alphaBlend(bgSpritePixMap[pixMapInd], outColor);
+            }
 
             // Now sample from each actor, TODO: Make this more efficient
             for (const auto &actor : scene.getActors())

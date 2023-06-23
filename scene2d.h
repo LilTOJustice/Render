@@ -115,7 +115,7 @@ class Scene2d
         ull_t m_thickness;
     };*/
 
-    Scene2d(ull_t framerate, ld_t duration, const RGB &bgColor = RGB{0, 0, 0}, const std::shared_ptr<Sprite> &bgSprite = std::make_shared<Sprite>(uVec2{0, 0})); // For Movie rendering or single-frame rendering
+    Scene2d(ull_t framerate, ld_t duration, const RGB &bgColor = RGB{0, 0, 0}, const std::shared_ptr<Sprite> &bgSprite = std::make_shared<Sprite>(uVec2{1, 1})); // For Movie rendering or single-frame rendering
     Scene2d(const RGB &bgColor = RGB{0, 0, 0}); // For single-frame rendering
 
     void addActor(const std::shared_ptr<Actor> &spActor);

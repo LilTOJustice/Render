@@ -1,5 +1,5 @@
 FLAGS=-std=c++17 -O3
-DEBUGFLAGS=#-fsanitize=address -g
+DEBUGFLAGS=-g #-fsanitize=address
 
 build: main.o frame.o linalg.o render2d.o scene2d.o shapes.o
 	g++ main.o frame.o linalg.o render2d.o scene2d.o shapes.o $(FLAGS) $(DEBUGFLAGS) -pthread -lpng -o RenderDemo
