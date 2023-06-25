@@ -72,8 +72,10 @@ void Movie::output(string filename) const
 
     string cmd = "ffmpeg -y -v -8 -framerate " + to_string(m_fps)
         + " -f image2 -i temp" + to_string(m_movieId)
-        + "/%d.png -c h264 -pix_fmt yuv420p -b:v 32768k "
+        + "/%d.bmp -c h264 -pix_fmt yuv420p -b:v 32768k "
         + fullname;
+
+    cout << cmd << "\n\n";
 
     if (system(cmd.c_str()))
     {
@@ -90,8 +92,8 @@ void Movie::writeFrame(const shared_ptr<Frame> &spFrame, ull_t frameIndex)
         throw runtime_error("Invalid frame index recieved!");
     }
 
-    string filename = m_tempDir + "/" + to_string(frameIndex) + ".png";
-    CImg<byte_t>(spFrame->m_pImage, m_width, m_height, 1, 3).save_png(filename.c_str());
+    string filename = m_tempDir + "/" + to_string(frameIndex) + ".bmp";
+    CImg<byte_t>(spFrame->m_pImage, m_width, m_height, 1, 3).save_bmp(filename.c_str());
 }
 
 ull_t Movie::getHeight() const
