@@ -50,6 +50,7 @@ class Render2d
     
     public:
     Render2d(ull_t xRes, ull_t yRes, const std::shared_ptr<Scene2d> &spScene, ull_t numThreads = std::thread::hardware_concurrency());
+    Render2d(uVec2 res, const std::shared_ptr<Scene2d> &spScene, ull_t numThreads = std::thread::hardware_concurrency());
 
     std::shared_ptr<Frame> renderFrameNum(ull_t frameNum) const;
 
@@ -63,9 +64,9 @@ class Render2d
 
     void unbindThinkFunc();
 
-    private:
     std::shared_ptr<Frame> render(ld_t time = 0, bool verbose = true) const;
 
+    private:
     std::shared_ptr<Frame> render(const SceneInstance &scene, ld_t time = 0, bool verbose = true) const;
     static void threadRender(const Render2d &renderer
             , const std::vector<Render2d::SceneInstance> &sceneInstances

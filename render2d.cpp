@@ -49,6 +49,10 @@ Render2d::Render2d(ull_t xRes, ull_t yRes, const shared_ptr<Scene2d> &spScene, u
     }
 }
 
+Render2d::Render2d(uVec2 res, const shared_ptr<Scene2d> &spScene, ull_t numThreads)
+    : Render2d{res.x, res.y, spScene, numThreads}
+{}
+
 shared_ptr<Frame> Render2d::render(ld_t time, bool verbose) const
 {
     return render(*m_spScene, time, verbose);

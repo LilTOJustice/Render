@@ -18,6 +18,10 @@ Scene2d::Scene2d(ull_t fps, ld_t duration, const RGB &bgColor, const shared_ptr<
     }
 }
 
+Scene2d::Scene2d(const std::shared_ptr<Sprite> &bgSprite)
+    : m_camera{Vec2{0, 0}, 1, 0}, m_bgSprite{bgSprite}
+{}
+
 Scene2d::Scene2d(const RGB &bgColor)
     : m_camera{Vec2{0, 0}, 1, 0}, m_bgColor{bgColor}
 {}

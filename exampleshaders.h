@@ -5,7 +5,7 @@
 
 #include "shader.h"
 
-const int MAXITS = 100;
+constexpr int MAXITS = 100;
 ld_t mandel(const std::complex<ld_t> &c)
 {
     int its = 0;

@@ -18,6 +18,9 @@ typedef long long ll_t;
 typedef long double ld_t;
 typedef unsigned char byte_t;
 
+// Consts
+constexpr ld_t MAXBYTE = 255.;
+
 // Math types
 typedef T_Vec2<ll_t> Vec2;
 typedef T_Vec3<ll_t> Vec3;
@@ -341,7 +344,7 @@ class T_Vec3
 
     ld_t mag() const
     {
-        return hypot(x, y, z);
+        return sqrt(x * x + y * y + z * z);
     }
 
     T_Vec3<ld_t> norm() const
@@ -556,7 +559,7 @@ class T_Vec4
 
     ld_t mag() const
     {
-        return hypot(x, y, z, w);
+        return sqrt(x * x + y * y + z * z + w * w);
     }
 
     T_Vec4<ld_t> Norm() const
